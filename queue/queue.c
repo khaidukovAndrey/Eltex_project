@@ -1,27 +1,38 @@
-#include <stdio.h>
 #include <string.h>
 
-#define Q_SIZE 100
+
+#define Q_SIZE 5
 #define MAX_PKG_SIZE 1522
+
 
 // Структура очереди
 typedef struct Queue
 {
     unsigned char queue[Q_SIZE][MAX_PKG_SIZE];
+    unsigned short pkg_sizes[Q_SIZE];
     unsigned short front; // позиция первого элемента
     unsigned short rear; // позиция последнего элемента
 } Queue;
+
+//Записывает первый элемент в буфер и возвращает его размер
+unsigned short front(
+        Queue *q,
+        unsigned char *buff);
 
 // Инициализация очереди
 void init(Queue *q)
 {
     q->front = 0;
     q->rear = 0;
+    for (int i = 0; i < Q_SIZE; ++i)
+    {
+        q->pkg_sizes[i] = 0;
+    }
 }
 
 int is_full(Queue *q)
 {
-    if (q->rear < Q_SIZE-1)
+    if (q->pkg_sizes[q->rear] == 0)
     {
         return 0;
     }
@@ -30,7 +41,7 @@ int is_full(Queue *q)
 
 // Проверка на наличие элементов в очереди
 int is_empty(Queue *q) {
-    if(q->rear < q->front)
+    if (q->pkg_sizes[q->front] == 0)
     {
         return 1;
     }
@@ -49,26 +60,64 @@ void push(
     }
     if (!is_full(q)) // Проверка на наличие свободных мест в очереди
     {
-        memcpy(q->queue[q->rear++], pkg, pkg_size);
+        memcpy(q->queue[q->rear], pkg, pkg_size);
+        q->pkg_sizes[q->rear] = pkg_size;
+        q->rear++;
+        if (q->rear == Q_SIZE)
+        {
+            q->rear = 0;
+        }
     }
 }
 
-//Возвращает ссылку на первый элемент в начале
-unsigned char* front(Queue *q)
+// Удаляет первый элемент из начала очереди
+void remove_front(Queue *q)
+{
+    if(is_empty(q))
+    {
+        return;
+    }
+    q->pkg_sizes[q->front] = 0;
+    q->front++;
+    if (q->front == Q_SIZE)
+    {
+        q->front = 0;
+    }
+}
+
+// Получить первый элемент из очереди и удалить его
+unsigned short pop(
+        Queue *q,
+        unsigned char *buff)
+{
+    unsigned short read_bytes = front(q, buff);
+    remove_front(q);
+    return read_bytes;
+}
+
+
+//Записывает первый элемент в буфер и возвращает его размер
+unsigned short front(
+        Queue *q,
+        unsigned char *buff)
 {
     if (is_empty(q))
     {
-        return NULL;
+        return 0;
     }
-    return q->queue[q->front];
+    memcpy(buff,q->queue[q->front],q->pkg_sizes[q->front]);
+    return q->pkg_sizes[q->front];
 }
 
 //Возвращает ссылку на последний и наиболее недавно добавленный элемент в конец
-unsigned char* back(Queue *q)
+unsigned short back(
+        Queue *q,
+        unsigned char *buff)
 {
     if (is_empty(q))
     {
-        return NULL;
+        return 0;
     }
-    return q->queue[q->rear-1];
+    memcpy(buff,q->queue[q->rear-1],q->pkg_sizes[q->rear-1]);
+    return q->pkg_sizes[q->rear-1];
 }
