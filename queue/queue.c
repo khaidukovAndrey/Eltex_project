@@ -1,23 +1,5 @@
+#include "queue.h"
 #include <string.h>
-
-
-#define Q_SIZE 5
-#define MAX_PKG_SIZE 1522
-
-
-// Структура очереди
-typedef struct Queue
-{
-    unsigned char queue[Q_SIZE][MAX_PKG_SIZE];
-    unsigned short pkg_sizes[Q_SIZE];
-    unsigned short front; // позиция первого элемента
-    unsigned short rear; // позиция последнего элемента
-} Queue;
-
-//Записывает первый элемент в буфер и возвращает его размер
-unsigned short front(
-        Queue *q,
-        unsigned char *buff);
 
 // Инициализация очереди
 void init(Queue *q)
@@ -40,7 +22,8 @@ int is_full(Queue *q)
 }
 
 // Проверка на наличие элементов в очереди
-int is_empty(Queue *q) {
+int is_empty(Queue *q)
+{
     if (q->pkg_sizes[q->front] == 0)
     {
         return 1;
