@@ -1,4 +1,8 @@
-# Простой сниффер
----
-В данной папке находятся сниффер, main.c (vlan_tagger_main.c main файл для всего проекта) и sniffer_header.h (заголовочный файл для сниффера).
-Сниффер представляет собой программу, которая сначала создает и открывает сырой сокет (сокет привязывается к определенному интерфейсу), после чего пакеты поступающие на интерфейс перехватываются сокетом и хранятся в виде HEX пакета в переменной buffer.
+# Sample GitLab Project
+
+This sample project shows how a project in GitLab looks for demonstration purposes. It contains issues, merge requests and Markdown files in many branches,
+named and filled with lorem ipsum.
+
+You can look around to get an idea how to structure your project and, when done, you can safely delete this project.
+
+[Learn more about creating GitLab projects.](https://docs.gitlab.com/ee/gitlab-basics/create-project.html)
