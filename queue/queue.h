@@ -1,5 +1,6 @@
 #ifndef QUEUE_QUEUE_H
 #define QUEUE_QUEUE_H
+#include<pthread.h>
 
 
 #define Q_SIZE 10 // Длина очереди
@@ -13,6 +14,8 @@ typedef struct Queue
     unsigned short pkg_sizes[Q_SIZE];
     unsigned short front; // позиция первого элемента
     unsigned short rear; // позиция последнего элемента
+    pthread_mutex_t front_mutex;
+    pthread_mutex_t back_mutex;
 } Queue;
 
 void init(Queue *); // Инициализация очереди

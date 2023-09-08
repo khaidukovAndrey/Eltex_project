@@ -1,5 +1,7 @@
 #include "queue.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // Инициализация очереди
 void init(Queue *q)
@@ -9,6 +11,16 @@ void init(Queue *q)
     for (int i = 0; i < Q_SIZE; ++i)
     {
         q->pkg_sizes[i] = 0;
+    }
+    if (pthread_mutex_init(&q->back_mutex, NULL) != 0)
+    {
+        perror("Unsuccessful mutex initialisation back_mutex: ");
+        exit(EXIT_FAILURE);
+    }
+    if (pthread_mutex_init(&q->front_mutex, NULL) != 0)
+    {
+        perror("Unsuccessful mutex initialisation front_mutex: ");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -43,6 +55,7 @@ void push(
     }
     if (!is_full(q)) // Проверка на наличие свободных мест в очереди
     {
+        pthread_mutex_lock(&q->back_mutex);
         memcpy(q->queue[q->rear], pkg, pkg_size);
         q->pkg_sizes[q->rear] = pkg_size;
         q->rear++;
@@ -50,6 +63,7 @@ void push(
         {
             q->rear = 0;
         }
+        pthread_mutex_unlock(&q->back_mutex);
     }
 }
 
@@ -73,8 +87,16 @@ unsigned short pop(
         Queue *q,
         unsigned char *buff)
 {
-    unsigned short read_bytes = front(q, buff);
-    remove_front(q);
+    pthread_mutex_lock(&q->front_mutex);
+    memcpy(buff,q->queue[q->front],q->pkg_sizes[q->front]);
+    unsigned short read_bytes = q->pkg_sizes[q->front];
+    q->pkg_sizes[q->front] = 0;
+    q->front++;
+    if (q->front == Q_SIZE)
+    {
+        q->front = 0;
+    }
+    pthread_mutex_unlock(&q->front_mutex);
     return read_bytes;
 }
 
@@ -88,7 +110,9 @@ unsigned short front(
     {
         return 0;
     }
+    pthread_mutex_lock(&q->front_mutex);
     memcpy(buff,q->queue[q->front],q->pkg_sizes[q->front]);
+    pthread_mutex_unlock(&q->front_mutex);
     return q->pkg_sizes[q->front];
 }
 
@@ -101,6 +125,8 @@ unsigned short back(
     {
         return 0;
     }
+    pthread_mutex_lock(&q->back_mutex);
     memcpy(buff,q->queue[q->rear-1],q->pkg_sizes[q->rear-1]);
+    pthread_mutex_unlock(&q->back_mutex);
     return q->pkg_sizes[q->rear-1];
 }
