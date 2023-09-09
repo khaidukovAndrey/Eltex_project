@@ -1,13 +1,17 @@
 #include "sniffer_header.h"
 
-void packet_sniffer(char *interface_name){
+void packet_sniffer(const char *interface_name)
+{
     int sock_r;
     int saddr_len;
     int buffer_len;
-    unsigned char buffer[1522] = {0};
-    struct sockaddr_ll saddr = {0};
+    unsigned char buffer[ETHERNET_FRAME_LENGTH] = { 0 };
+    struct sockaddr_ll saddr = { 0 };
 
-    sock_r = socket(AF_PACKET,SOCK_RAW,htons(ETH_P_ALL));
+    sock_r = socket(
+            AF_PACKET,
+            SOCK_RAW,
+            htons(ETH_P_ALL));
     if (sock_r < 0)
     {
         perror("Socket opening error");
@@ -27,7 +31,7 @@ void packet_sniffer(char *interface_name){
     while(1)
     {
         saddr_len = sizeof saddr;
-        buffer_len = recvfrom(sock_r, buffer, 1522, 0, (struct sockaddr*)&saddr, (socklen_t*)&saddr_len);
+        buffer_len = recvfrom(sock_r, buffer, sizeof(buffer), 0, (struct sockaddr *)&saddr, (socklen_t *)&saddr_len);
         if (buffer_len < 0)
         {
             perror("Error receiving packets");
@@ -35,5 +39,6 @@ void packet_sniffer(char *interface_name){
             exit(EXIT_FAILURE);
         }
     }
+    
     close(sock_r);
 }

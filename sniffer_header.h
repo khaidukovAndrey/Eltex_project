@@ -10,6 +10,8 @@
 #include <netinet/in.h>
 #include <netinet/if_ether.h>
 
-void packet_sniffer(char *interface_name);
+#define ETHERNET_FRAME_LENGTH 1522
+
+void packet_sniffer(const char *interface_name);
 
 #endif
