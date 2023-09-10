@@ -1,6 +1,7 @@
-#ifndef QUEUE_QUEUE_H
-#define QUEUE_QUEUE_H
-#include<pthread.h>
+#ifndef queue_h
+#define queue_h
+
+#include <pthread.h>
 
 
 #define Q_SIZE 10 // Длина очереди
@@ -10,40 +11,46 @@
 // Структура очереди
 typedef struct Queue
 {
-    unsigned char queue[Q_SIZE][MAX_PKG_SIZE];
-    unsigned short pkg_sizes[Q_SIZE];
+    unsigned char queue[Q_SIZE][MAX_PKG_SIZE]; // Массив, который содержит элементы очереди
+    unsigned short pkg_sizes[Q_SIZE]; // Массив, который содержит размеры пакетов каждого элемента очереди
     unsigned short front; // позиция первого элемента
-    unsigned short rear; // позиция последнего элемента
-    pthread_mutex_t front_mutex;
-    pthread_mutex_t back_mutex;
-} Queue;
+    unsigned short rear; // позиция для вставки нового элемента
+    pthread_rwlock_t rw_lock; // Блокировка читателей/писателей
+    pthread_mutex_t cond_mutex; // Защитный мьютекс для pthread_cond_signal
+    pthread_cond_t condition; // Переменная состояния
+} Queue_t;
 
-void init(Queue *); // Инициализация очереди
+int init(Queue_t *); // Инициализация очереди
 
-int is_full(Queue *); // Проверка заполненности очереди
+int is_full(Queue_t *); // Проверка наличия свободных мест в очереди
 
-int is_empty(Queue *); // Проверка наличия элементов в очереди
+int is_empty(Queue_t *); // Проверка наличие элементов в очереди
 
 // Добавление элемента в очередь в конец
-void push(
-        Queue *, // Очередь
+int push(
+        Queue_t *, // Очередь
         unsigned char *, // Пакет
         unsigned short); // Размер пакета
 
 
-void remove_front(Queue *); // Удаление первого элемента очереди
+void remove_front(Queue_t *); // Удаление первого элемента очереди
 
+// Получить первый элемент из очереди и удалить его
 unsigned short pop(
-        Queue *q, // Очередь
-        unsigned char *buff); // Буфер, в который будет занесен пакет
+        Queue_t *, // Очередь
+        unsigned char *); // Буфер, в который будет занесен пакет
 
 //Получить первый элемент из очереди и записать его в буфер, функция возвращает кол-во записанных байт
 unsigned short front(
-        Queue *q,
-        unsigned char *buff);
+        Queue_t *,
+        unsigned char *);
 
+//Записывает последний элемент в буфер и возвращает его размер
 unsigned short back(
-        Queue *q, // Очередь
-        unsigned char *buff); // Буфер, в который будет занесен пакет
+        Queue_t *, // Очередь
+        unsigned char *); // Буфер, в который будет занесен пакет
 
-#endif //QUEUE_QUEUE_H
+
+int queue_destroy(Queue_t *); // Завершение работы с очередью (уничтожение файлов мьютексов)
+
+#endif //queue_h
