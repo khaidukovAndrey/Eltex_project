@@ -1,29 +1,39 @@
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 #include "config_parser.h"
+#include "queue/queue.h"
 
-tag_rules *tagRules;
+tag_rules *tag_r;
+Queue *in_queue, *out_queue;
 
-int numOfRules = 10;
+int num_of_rules = 10;
+unsigned char buffer[1522] = {0};
+unsigned char second_buffer[1522] = {0};
 
-int difine_tag_for_ip(uint32_t addr)
+unsigned short difine_tag_for_ip(uint32_t addr)
 {
-    if (tagRules == NULL)
+    if (tag_r == NULL)
     {
         return -1;
     }
-    if (numOfRules == 0)
+
+    if (num_of_rules == 0)
     {
         return -2;
     }
+
     int k = 0;
-    while (k < numOfRules && tagRules[k].left_board <= addr && tagRules[k].right_board >= addr)
+
+    while (k < num_of_rules && tag_r[k].left_board <= addr && tag_r[k].right_board >= addr)
     {
         k++;
     }
-    if (k == numOfRules)
+
+    if (k == num_of_rules)
     {
-        return tagRules[k].tag;
+        return tag_r[k].tag;
     }
+
     return 0;
 }
