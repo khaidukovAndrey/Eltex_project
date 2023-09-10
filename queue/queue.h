@@ -2,6 +2,7 @@
 #define queue_h
 
 #include <pthread.h>
+#include <sys/types.h>
 
 
 #define Q_SIZE 10 // Длина очереди
@@ -27,7 +28,7 @@ int is_full(Queue_t *); // Проверка наличия свободных м
 int is_empty(Queue_t *); // Проверка наличие элементов в очереди
 
 // Добавление элемента в очередь в конец
-int push(
+ssize_t push(
         Queue_t *, // Очередь
         unsigned char *, // Пакет
         unsigned short); // Размер пакета
@@ -36,17 +37,17 @@ int push(
 void remove_front(Queue_t *); // Удаление первого элемента очереди
 
 // Получить первый элемент из очереди и удалить его
-unsigned short pop(
+ssize_t pop(
         Queue_t *, // Очередь
         unsigned char *); // Буфер, в который будет занесен пакет
 
 //Получить первый элемент из очереди и записать его в буфер, функция возвращает кол-во записанных байт
-unsigned short front(
+ssize_t front(
         Queue_t *,
         unsigned char *);
 
 //Записывает последний элемент в буфер и возвращает его размер
-unsigned short back(
+ssize_t back(
         Queue_t *, // Очередь
         unsigned char *); // Буфер, в который будет занесен пакет
 

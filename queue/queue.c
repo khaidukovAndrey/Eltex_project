@@ -59,7 +59,7 @@ int is_empty(Queue_t *q)
 }
 
 // Добавление элемента в конец очереди
-int push(
+ssize_t push(
         Queue_t *q, // Очередь
         unsigned char *pkg, // Пакет
         unsigned short pkg_size) // Размер пакета
@@ -111,20 +111,20 @@ void remove_front(Queue_t *q)
 }
 
 // Получить первый элемент из очереди и удалить его
-unsigned short pop(
+ssize_t pop(
         Queue_t *q,
         unsigned char *buff)
 {
     if (!q || !buff)
     {
-        return 0;
+        return -1;
     }
 
     if (is_empty(q))
     {
         if (pthread_cond_wait(&q->condition, &q->cond_mutex) != 0)
         {
-            return 0;
+            return -1;
         }
         pthread_mutex_unlock(&q->cond_mutex);
     }
@@ -143,13 +143,13 @@ unsigned short pop(
 
 
 //Записывает первый элемент в буфер и возвращает его размер
-unsigned short front(
+ssize_t front(
         Queue_t *q,
         unsigned char *buff)
 {
     if (!q || !buff || is_empty(q))
     {
-        return 0;
+        return -1;
     }
 
     pthread_rwlock_rdlock(&q->rw_lock);
@@ -163,13 +163,13 @@ unsigned short front(
 }
 
 //Записывает последний элемент в буфер и возвращает его размер
-unsigned short back(
+ssize_t back(
         Queue_t *q,
         unsigned char *buff)
 {
     if (!q || !buff || is_empty(q))
     {
-        return 0;
+        return -1;
     }
 
     pthread_rwlock_rdlock(&q->rw_lock);
