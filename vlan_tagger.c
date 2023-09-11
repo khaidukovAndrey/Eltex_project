@@ -1,11 +1,6 @@
-#include <stdint.h>
-#include <unistd.h>
-#include <string.h>
-#include "config_parser.h"
-#include "queue/queue.h"
+#include "vlan_tagger.h"
 
 tag_rules *tag_r;
-Queue_t *in_queue, *out_queue;
 
 int num_of_rules = 10;
 unsigned char buffer[1522] = { 0 };
@@ -38,17 +33,15 @@ short difine_tag_for_ip(uint32_t addr)
     return 0;
 }
 
-int packet_editor()
+int packet_editor(Queue_t *in_queue, Queue_t *out_queue)
 {
-    init(in_queue);
-    init(out_queue);
 
     short tag = 0;
     int k = 0;
     uint32_t addr = 0;
     while (1)
     {
-        if (pop(&in_queue, &buffer) == 0)
+        if (pop(in_queue, buffer) == 0)
         {
             continue;
         }
@@ -57,6 +50,7 @@ int packet_editor()
         {
             continue;
         }
+
         addr = 0;
         addr = addr | buffer[30];
         addr = addr << 8;
@@ -97,7 +91,7 @@ int packet_editor()
         second_buffer[k + 2] = second_buffer[k + 2] | ((0x0f00 & tag) >> 8); // first 3 bits of VID
         second_buffer[k + 3] = 0x00ff & tag;                                 // VID
 
-        while (buffer[k] != "\0" && k < 1522)
+        while (buffer[k] != '\0' && k < 1522)
         {
             second_buffer[k + 4] = buffer[k];
             k++;
