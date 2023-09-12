@@ -2,6 +2,7 @@
 #include <time.h>
 #include <string.h>
 #include <stdarg.h>
+#include <pthread.h>
 #include "logger.h"
 
 #define FILE_LOG_NAME "log"
@@ -9,14 +10,18 @@
 #define USR_MSG_SIZE 200
 
 
-
-
+static pthread_mutex_t mutex;
 static FILE *file;
 
 
 int start_log(void)
 {
     if ((file = fopen(FILE_LOG_NAME, "a")) == NULL)
+    {
+        return -1;
+    }
+
+    if (pthread_mutex_init(&mutex,NULL) != 0)
     {
         return -1;
     }
@@ -31,13 +36,18 @@ int stop_log(void)
         return -1;
     }
 
+    if (pthread_mutex_destroy(&mutex) != 0)
+    {
+        return -1;
+    }
+
     return 0;
 }
 
 int get_time(char* buffer)
 {
-    static time_t currentTime;
-    static struct tm *time_info;
+    time_t currentTime;
+    struct tm *time_info;
 
     // Получить текущее время
     if ((currentTime = time(NULL)) == -1)
@@ -74,7 +84,7 @@ int printL(
         return -1;
     }
 
-    static char buffer[USR_MSG_SIZE] = { 0 };
+    char buffer[USR_MSG_SIZE] = { 0 };
     int returned_val = 0; // Возвращаемое значение - количество записанных символов
 
     // Работа с переменным числом аргументов
@@ -86,11 +96,14 @@ int printL(
     va_end(args);
 
     // Получаем время
-    static char time_buff[TIME_BUF_SIZE] = { 0 };
+    char time_buff[TIME_BUF_SIZE] = { 0 };
     if (get_time(time_buff) == -1)
     {
         return -2;
     }
+
+    pthread_mutex_lock(&mutex); // Входим в критический участок
+
     if (fputs(time_buff, file) == EOF)
     {
         return -3;
@@ -104,6 +117,7 @@ int printL(
         {
             if (fputs("\t[INFO]\t", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -112,6 +126,7 @@ int printL(
         {
             if (fputs("\t[WARN]\t", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -120,6 +135,7 @@ int printL(
         {
             if (fputs("\t[ERR] \t", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -128,6 +144,7 @@ int printL(
         {
             if (fputs("\t[INFO] \t", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
         }
@@ -139,6 +156,7 @@ int printL(
         {
             if (fputs("INIT: ", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -147,6 +165,7 @@ int printL(
         {
             if (fputs("PARS: ", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -155,6 +174,7 @@ int printL(
         {
             if (fputs("SNIF: ", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -163,6 +183,7 @@ int printL(
         {
             if (fputs("TAGG: ", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -171,6 +192,7 @@ int printL(
         {
             if (fputs("SEND: ", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
             break;
@@ -179,20 +201,27 @@ int printL(
         {
             if (fputs("UNK:  ", file) == EOF)
             {
+                pthread_mutex_unlock(&mutex);
                 return -3;
             }
         }
     }
     returned_val += 6;
+
     // Записываем само сообщение
     if (fputs(buffer, file) == EOF)
     {
+        pthread_mutex_unlock(&mutex);
         return -3;
     }
     if (fputc('\n', file) == EOF)
     {
+        pthread_mutex_unlock(&mutex);
         return -3;
     }
+
+    pthread_mutex_unlock(&mutex);
+
     returned_val++;
 
     return returned_val;
