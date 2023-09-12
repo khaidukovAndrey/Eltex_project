@@ -1,6 +1,5 @@
 #include "vlan_tagger.h"
 
-tag_rules *tag_r;
 Queue_t *in_queue;
 Queue_t *out_queue;
 
@@ -8,9 +7,10 @@ int num_of_rules = 10;
 unsigned char buffer[1522] = {0};
 unsigned char second_buffer[1522] = {0};
 
-short difine_tag_for_ip(uint32_t addr)
+short difine_tag_for_ip(uint32_t addr, tag_rules** tag_rules_obj)
 {
-    if (tag_r == NULL)
+    
+    if (tag_rules_obj == NULL)
     {
         return -1;
     }
@@ -22,14 +22,16 @@ short difine_tag_for_ip(uint32_t addr)
 
     int k = 0;
 
-    while (k < num_of_rules && tag_r[k].left_board <= addr && tag_r[k].right_board >= addr)
+    while (k < num_of_rules && 
+           (*tag_rules_obj)[k].ip_left.s_addr <= addr && 
+           (*tag_rules_obj)[k].ip_right.s_addr >= addr)
     {
         k++;
     }
 
     if (k == num_of_rules)
     {
-        return tag_r[k].tag;
+        return (*tag_rules_obj)[k].tag;
     }
 
     return 0;
@@ -109,13 +111,14 @@ unsigned short packet_editor(short tag, unsigned short packet_size)
     return packet_size;
 }
 
-int tagger(void)
+int tagger(tag_rules** tag_rules_obj)
 {
 
     short tag = 0;
     int k = 0;
     uint32_t addr = 0;
     unsigned short packet_size = 0;
+    
     while (1)
     {
         if ((packet_size = read_packet()) == 0)
