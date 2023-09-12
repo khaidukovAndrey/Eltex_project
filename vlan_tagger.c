@@ -1,10 +1,12 @@
 #include "vlan_tagger.h"
 
 tag_rules *tag_r;
+Queue_t *in_queue;
+Queue_t *out_queue;
 
 int num_of_rules = 10;
-unsigned char buffer[1522] = { 0 };
-unsigned char second_buffer[1522] = { 0 };
+unsigned char buffer[1522] = {0};
+unsigned char second_buffer[1522] = {0};
 
 short difine_tag_for_ip(uint32_t addr)
 {
@@ -33,33 +35,100 @@ short difine_tag_for_ip(uint32_t addr)
     return 0;
 }
 
-int packet_editor(Queue_t *in_queue, Queue_t *out_queue)
+unsigned short read_packet(void)
+{
+    unsigned short packet_size = 0;
+
+    if (packet_size = in_queue->pkg_sizes[0] < 46)
+    {
+        pop(in_queue, buffer);
+        return 0;
+    }
+
+    if (pop(in_queue, buffer) == 0)
+    {
+        return 0;
+    }
+
+    return packet_size;
+}
+
+int analyze_packet(void)
+{
+    short type_field = 0;
+    type_field = ((0x0000 | (0xff & buffer[12])) << 8) | (0xff & buffer[13]);
+
+    if (type_field <= 1500)
+    {
+        return -1;
+    }
+
+    if (type_field != 0x0800)
+    {
+        return -2;
+    }
+
+    return 0;
+}
+
+uint32_t get_packet_ip(void)
+{
+    uint32_t addr = 0;
+
+    for (int i = 30; i < 34; i++)
+    {
+        addr = (addr | buffer[30]) << 8;
+    }
+
+    return addr;
+}
+
+unsigned short packet_editor(short tag, unsigned short packet_size)
+{
+    for (int i = 0; i < 12; i++)
+    {
+        second_buffer[i] = buffer[i];
+    }
+
+    second_buffer[12] = 0x81;  // first byte of TPID
+    second_buffer[13] = 0x00;  // second byte of TPID
+    second_buffer[14] = 0 | 0; // PCP
+    second_buffer[14] <<= 1;
+    second_buffer[14] = second_buffer[14] | 0; // DEI
+    second_buffer[14] <<= 4;
+    second_buffer[14] = second_buffer[14] | ((0x0f00 & tag) >> 8); // first 3 bits of VID
+    second_buffer[15] = 0x00ff & tag;                              // VID
+
+    for (int i = 12; i < packet_size; i++)
+    {
+        second_buffer[i + 4] = buffer[i];
+    }
+
+    packet_size += 4;
+
+    return packet_size;
+}
+
+int tagger(void)
 {
 
     short tag = 0;
     int k = 0;
     uint32_t addr = 0;
+    unsigned short packet_size = 0;
     while (1)
     {
-        if (pop(in_queue, buffer) == 0)
+        if ((packet_size = read_packet()) == 0)
         {
             continue;
         }
 
-        if ((((0x0000 | (0xff & buffer[12])) << 8) | (0xff & buffer[13])) <= 1500)
+        if (analyze_packet() != 0)
         {
             continue;
         }
 
-        addr = 0;
-        addr = addr | buffer[30];
-        addr = addr << 8;
-        addr = addr | buffer[31];
-        addr = addr << 8;
-        addr = addr | buffer[32];
-        addr = addr << 8;
-        addr = addr | buffer[33];
-        addr = addr << 8;
+        addr = get_packet_ip();
 
         switch (tag = difine_tag_for_ip(addr))
         {
@@ -76,28 +145,13 @@ int packet_editor(Queue_t *in_queue, Queue_t *out_queue)
             break;
         }
 
-        while (k != 12)
+        packet_size = packet_editor(tag, packet_size);
+
+        if (push(out_queue, second_buffer, packet_size) != packet_size)
         {
-            second_buffer[k] = buffer[k];
-            k++;
+            perror("Error pushing packet to queue");
+            exit(EXIT_FAILURE);
         }
-
-        second_buffer[k] = 0x81;      // first byte of TPID
-        second_buffer[k + 1] = 0x00;  // second byte of TPID
-        second_buffer[k + 2] = 0 | 0; // PCP
-        second_buffer[k + 2] <<= 1;
-        second_buffer[k + 2] = second_buffer[k + 2] | 0; // DEI
-        second_buffer[k + 2] <<= 4;
-        second_buffer[k + 2] = second_buffer[k + 2] | ((0x0f00 & tag) >> 8); // first 3 bits of VID
-        second_buffer[k + 3] = 0x00ff & tag;                                 // VID
-
-        while (buffer[k] != '\0' && k < 1522)
-        {
-            second_buffer[k + 4] = buffer[k];
-            k++;
-        }
-
-        push(out_queue, second_buffer, 1522);
     }
     return 0;
 }
