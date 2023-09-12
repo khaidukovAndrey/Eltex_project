@@ -106,6 +106,7 @@ int printL(
 
     if (fputs(time_buff, file) == EOF)
     {
+        pthread_mutex_unlock(&mutex);
         return -3;
     }
     returned_val += (int) strlen(time_buff); //Увеличиваем счетчик записанных символов
@@ -142,14 +143,16 @@ int printL(
         }
         default:
         {
-            if (fputs("\t[INFO] \t", file) == EOF)
+            if (fputs("\t[INFO]\t", file) == EOF)
             {
                 pthread_mutex_unlock(&mutex);
                 return -3;
             }
         }
     }
+
     returned_val += 8;
+
     switch (sender)
     {
         case INITIATOR:
