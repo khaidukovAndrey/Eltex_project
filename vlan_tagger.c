@@ -4,8 +4,8 @@ Queue_t *in_queue;
 Queue_t *out_queue;
 
 int num_of_rules = 10;
-unsigned char buffer[1522] = {0};
-unsigned char second_buffer[1522] = {0};
+unsigned char buffer[1522] = { 0 };
+unsigned char second_buffer[1522] = { 0 };
 
 short difine_tag_for_ip(uint32_t addr, tag_rules_t **tag_rules_obj)
 {
@@ -43,7 +43,6 @@ ssize_t read_packet(void)
     packet_size = pop(in_queue, buffer);
     if (packet_size == -1)
     {
-        //printL(0, 3, "Failed to read packet from queue");
         return 0;
     }
     if (packet_size < 46)
