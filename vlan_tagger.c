@@ -4,10 +4,10 @@ Queue_t *in_queue;
 Queue_t *out_queue;
 
 int num_of_rules = 10;
-unsigned char buffer[1522] = { 0 };
-unsigned char second_buffer[1522] = { 0 };
+static unsigned char buffer[1522] = {0};
+static unsigned char second_buffer[1522] = {0};
 
-short difine_tag_for_ip(uint32_t addr, tag_rules_t **tag_rules_obj)
+short difine_tag_for_ip(uint32_t addr, const tag_rules_t **tag_rules_obj)
 {
 
     if (tag_rules_obj == NULL)
@@ -26,6 +26,10 @@ short difine_tag_for_ip(uint32_t addr, tag_rules_t **tag_rules_obj)
            (*tag_rules_obj)[k].ip_left.s_addr <= addr &&
            (*tag_rules_obj)[k].ip_right.s_addr >= addr)
     {
+        if (*tag_rules_obj == NULL)
+        {
+            return -1;
+        }
         k++;
     }
 
@@ -118,12 +122,22 @@ unsigned short packet_editor(short tag, unsigned short packet_size)
     return packet_size;
 }
 
-int tagger(tag_rules_t **tag_rules_obj)
+int tagger(const tag_rules_t **tag_rules_obj)
 {
     short tag = 0;
-    int k = 0;
     uint32_t addr = 0;
     ssize_t packet_size = 0;
+
+    if (tag_rules_obj == NULL)
+    {
+        return -1;
+    }
+
+    if (!tag_rules_obj)
+    {
+        printL(1, 3, "tag_rules_obj is not exist");
+        exit(EXIT_FAILURE);
+    }
 
     while (1)
     {
