@@ -4,8 +4,8 @@ Queue_t *in_queue;
 Queue_t *out_queue;
 
 int num_of_rules = 10;
-static unsigned char buffer[1522] = {0};
-static unsigned char second_buffer[1522] = {0};
+static unsigned char buffer[1522] = { 0 };
+static unsigned char second_buffer[1522] = { 0 };
 
 short difine_tag_for_ip(uint32_t addr, const tag_rules_t **tag_rules_obj)
 {
