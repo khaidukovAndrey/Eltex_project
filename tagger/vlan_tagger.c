@@ -6,7 +6,7 @@ int num_of_rules = 10; // Что это?
     static unsigned char buffer[1522] = { 0 };
 static unsigned char second_buffer[1522] = { 0 };
 
-short define_tag_for_ip(uint32_t addr, const tag_rules_t **tag_rules_obj, int size)
+short define_tag_for_ip(uint32_t addr, tag_rules_t *tag_rules_obj, int size)
 {
 
     if (tag_rules_obj == NULL)
@@ -23,10 +23,10 @@ short define_tag_for_ip(uint32_t addr, const tag_rules_t **tag_rules_obj, int si
     for (int i = 0; i < size; ++i)
     {
 
-        if (ntohl(tag_rules_obj[i]->ip_left.s_addr) <= addr &&
-                ntohl(tag_rules_obj[i]->ip_right.s_addr) >= addr)
+        if (ntohl(tag_rules_obj[i].ip_left.s_addr) <= addr &&
+                ntohl(tag_rules_obj[i].ip_right.s_addr) >= addr)
         {
-            return (tag_rules_obj)[i]->tag;
+            return (tag_rules_obj)[i].tag;
         }
     }
 
@@ -151,7 +151,7 @@ void *tagger(void *thread_data)
         }
 
         addr = get_packet_ip();
-        switch (tag = define_tag_for_ip(addr, &params.tag_rules_obj, params.tag_rules_size)) {
+        switch (tag = define_tag_for_ip(addr, params.tag_rules_obj, params.tag_rules_size)) {
             case 0: {
                 continue;
             }

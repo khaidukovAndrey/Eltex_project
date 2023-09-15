@@ -27,7 +27,7 @@ unsigned short packet_editor(short tag, unsigned short packet_size);
 uint32_t get_packet_ip(void);
 int analyze_packet(void);
 ssize_t read_packet(struct thread_data params);
-short define_tag_for_ip(uint32_t addr, const tag_rules_t **tag_rules_obj, int size);
+short define_tag_for_ip(uint32_t addr, tag_rules_t *tag_rules_obj, int size);
 
 void *packet_sender(void *thread_data);
 

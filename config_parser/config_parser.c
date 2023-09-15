@@ -18,7 +18,9 @@ int tag_rules_init(tag_rules_t **tag_rules_obj, int size)
     }
 
     *tag_rules_obj = calloc(size, sizeof(*tag_rules_obj));
-    if (tag_rules_obj == NULL)
+
+
+        if (tag_rules_obj == NULL)
     {
         return -2;
     }
