@@ -1,0 +1,138 @@
+15.09.2023 18:34:29	[ERR] 	PARS: Error opening/closing config file (error code: -1)!
+15.09.2023 18:39:26	[ERR] 	PARS: Error opening/closing config file (error code: -1)!
+15.09.2023 18:40:22	[ERR] 	PARS: Error opening/closing config file (error code: -1)!
+15.09.2023 18:41:13	[ERR] 	PARS: Error opening/closing config file (error code: -1)!
+15.09.2023 19:31:47	[INFO]	INIT: Thread №0 started
+15.09.2023 19:31:47	[INFO]	INIT: Thread №0 started
+15.09.2023 19:31:47	[INFO]	INIT: Thread №1 started
+15.09.2023 19:31:47	[ERR] 	TAGG: Queue entry failed
+15.09.2023 19:31:47	[INFO]	INIT: Socket closed.
+15.09.2023 19:31:47	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:31:47	[ERR] 	SNIF: Error sending packets (error code: 9)!
+15.09.2023 19:31:47	[INFO]	INIT: Socket closed.
+15.09.2023 19:31:47	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:31:47	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 19:31:47	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 19:32:02	[INFO]	INIT: Thread №0 started
+15.09.2023 19:32:02	[ERR] 	TAGG: Queue entry failed
+15.09.2023 19:32:02	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 19:32:02	[INFO]	INIT: Socket closed.
+15.09.2023 19:32:02	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:32:02	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 19:32:02	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 19:32:07	[INFO]	INIT: Thread №0 started
+15.09.2023 19:32:07	[INFO]	INIT: Thread №0 started
+15.09.2023 19:32:07	[ERR] 	TAGG: Queue entry failed
+15.09.2023 19:32:07	[INFO]	INIT: Socket closed.
+15.09.2023 19:32:07	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:32:07	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 19:32:07	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 19:32:12	[INFO]	INIT: Thread №0 started
+15.09.2023 19:32:12	[INFO]	INIT: Thread №0 started
+15.09.2023 19:32:12	[INFO]	INIT: Thread №1 started
+15.09.2023 19:32:12	[ERR] 	TAGG: Queue entry failed
+15.09.2023 19:32:12	[INFO]	INIT: Socket closed.
+15.09.2023 19:32:12	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:32:12	[ERR] 	SNIF: Error sending packets (error code: 9)!
+15.09.2023 19:32:12	[INFO]	INIT: Socket closed.
+15.09.2023 19:32:12	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:32:12	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 19:32:12	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 19:33:14	[INFO]	INIT: Thread №0 started
+15.09.2023 19:33:14	[INFO]	INIT: Thread №0 started
+15.09.2023 19:33:14	[INFO]	INIT: Thread №1 started
+15.09.2023 19:33:17	[ERR] 	TAGG: Queue entry failed
+15.09.2023 19:33:17	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 19:33:17	[INFO]	INIT: Socket closed.
+15.09.2023 19:33:17	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:33:17	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 19:33:17	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 19:33:32	[INFO]	INIT: Thread №0 started
+15.09.2023 19:33:32	[INFO]	INIT: Thread №0 started
+15.09.2023 19:33:32	[INFO]	INIT: Thread №1 started
+15.09.2023 19:33:32	[ERR] 	TAGG: Queue entry failed
+15.09.2023 19:33:32	[INFO]	INIT: Socket closed.
+15.09.2023 19:33:32	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 19:33:32	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 19:33:32	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:24:33	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:24:33	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:24:33	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:24:33	[INFO]	INIT: Thread №0 started
+15.09.2023 21:24:33	[INFO]	INIT: Socket closed.
+15.09.2023 21:24:33	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:24:33	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:24:33	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:26:38	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:26:38	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:26:38	[INFO]	INIT: Thread №0 started
+15.09.2023 21:26:38	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:26:38	[INFO]	INIT: Thread №0 started
+15.09.2023 21:26:38	[INFO]	INIT: Socket closed.
+15.09.2023 21:26:38	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:26:38	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:26:38	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:33:35	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:33:35	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:33:35	[INFO]	INIT: Thread №0 started
+15.09.2023 21:33:35	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:33:35	[INFO]	INIT: Thread №0 started
+15.09.2023 21:33:35	[INFO]	INIT: Socket closed.
+15.09.2023 21:33:35	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:33:35	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:33:35	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:40:53	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:40:53	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:40:53	[INFO]	INIT: Thread №0 started
+15.09.2023 21:40:53	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:40:53	[INFO]	INIT: Thread №0 started
+15.09.2023 21:40:53	[ERR] 	TAGG: Configuration file not specified (error code: -1)!
+15.09.2023 21:40:53	[INFO]	INIT: Socket closed.
+15.09.2023 21:40:53	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:40:53	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:40:53	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:40:58	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:40:58	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:40:58	[INFO]	INIT: Thread №0 started
+15.09.2023 21:40:58	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:40:58	[INFO]	INIT: Socket closed.
+15.09.2023 21:40:58	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:40:58	[ERR] 	TAGG: Configuration file not specified (error code: -1)!
+15.09.2023 21:40:58	[INFO]	INIT: Socket closed.
+15.09.2023 21:40:58	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:40:58	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:40:58	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:44:53	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:44:53	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:44:53	[INFO]	INIT: Thread №0 started
+15.09.2023 21:44:53	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:44:53	[INFO]	INIT: Thread №0 started
+15.09.2023 21:44:53	[ERR] 	TAGG: Configuration file not specified (error code: -1)!
+15.09.2023 21:44:53	[INFO]	INIT: Socket closed.
+15.09.2023 21:44:53	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:44:53	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:44:53	[INFO]	INIT: Thread №1 started
+15.09.2023 21:44:53	[ERR] 	SEND: Error sending packets (error code: 9)!
+15.09.2023 21:44:53	[INFO]	INIT: Socket closed.
+15.09.2023 21:44:53	[INFO]	INIT: Socket closed.
+15.09.2023 21:44:53	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:44:53	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:44:53	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:46:27	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:46:27	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:46:27	[INFO]	INIT: Thread №0 started
+15.09.2023 21:46:27	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:46:27	[INFO]	INIT: Thread №0 started
+15.09.2023 21:46:27	[ERR] 	TAGG: Configuration file not specified (error code: -1)!
+15.09.2023 21:46:27	[INFO]	INIT: Socket closed.
+15.09.2023 21:46:27	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:46:27	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:46:27	[INFO]	INIT: The memory allocated for the file config structure is cleared.
+15.09.2023 21:46:33	[ERR] 	PARS: Error reading file/writing data to structure (error code: -1)!
+15.09.2023 21:46:33	[ERR] 	PARS: Error when checking the configuration file for collisions (error code: -1)!
+15.09.2023 21:46:33	[INFO]	INIT: Thread №0 started
+15.09.2023 21:46:33	[ERR] 	SNIF: Error receiving packets (error code: 9)!
+15.09.2023 21:46:33	[INFO]	INIT: Socket closed.
+15.09.2023 21:46:33	[INFO]	INIT: Sniffer queue destroyed.
+15.09.2023 21:46:33	[INFO]	INIT: Sender queue destroyed.
+15.09.2023 21:46:33	[INFO]	INIT: The memory allocated for the file config structure is cleared.
