@@ -174,9 +174,9 @@ void *tagger(void *thread_data)
         if (push(params.sender_queue, second_buffer, packet_size) != packet_size)
         {
             printL(ERROR, TAGGER, "Queue entry failed");
-            logging_programm_completion(params);
-            stop_log();
-            exit(EXIT_FAILURE);
+            //logging_programm_completion(params);
+            //stop_log();
+            //exit(EXIT_FAILURE);
         }
     }
     pthread_exit(NULL);

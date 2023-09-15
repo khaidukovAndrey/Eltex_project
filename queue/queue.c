@@ -82,9 +82,9 @@ ssize_t push(
         q->pkg_sizes[q->rear] = pkg_size;
         next(&q->rear);
 
-        pthread_mutex_lock(&q->cond_mutex);
+        //pthread_mutex_lock(&q->cond_mutex);
         pthread_cond_signal(&q->condition);
-        pthread_mutex_unlock(&q->cond_mutex);
+        //pthread_mutex_unlock(&q->cond_mutex);
 
         pthread_rwlock_unlock(&q->rw_lock);
 

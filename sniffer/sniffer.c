@@ -13,8 +13,8 @@ void *packet_sniffer(void *thread_data)
     params = *((struct thread_data *)thread_data);
     while (1)
     {
-        if (!is_full(params.sniffer_queue))
-        {
+        //if (!is_full(params.sniffer_queue))
+       // {
             buffer_len = recvfrom(*params.socket, buffer, sizeof(buffer), 0, (struct sockaddr *)params.saddr, (socklen_t *)params.saddr_len);
             if (buffer_len < 0)
             {
@@ -27,7 +27,7 @@ void *packet_sniffer(void *thread_data)
             }
             int po = push(params.sniffer_queue, buffer, buffer_len);
             printf("Отправлено в очередь %d байт\n", po);
-        }
+        //}
     }
 
     pthread_exit(NULL);
