@@ -1,4 +1,8 @@
-#include "vlan_tagger.h"
+#include <string.h>
+#include "../tagger/vlan_tagger.h"
+#include "../logger/logger.h"
+#include "errno.h"
+#include "../init/pthread_init.h"
 
 void *packet_sender(void *thread_data)
 {
@@ -7,7 +11,6 @@ void *packet_sender(void *thread_data)
     struct thread_data params = { 0 };
 
     params = *((struct thread_data *)thread_data);
-
     while(1)
     {
         bytes_read = pop(params.sender_queue, buffer);
@@ -17,7 +20,7 @@ void *packet_sender(void *thread_data)
         if (bytes_sent == -1)
         {
             printf("Symbols was written: %d\n",
-                   printL(ERROR, SNIFFER, "Error sending packets (error code: %d)!", errno));
+                   printL(ERROR, SENDER, "Error sending packets (error code: %d)!", errno));
             logging_programm_completion(params);
             stop_log();
             exit(EXIT_FAILURE);
@@ -28,5 +31,5 @@ void *packet_sender(void *thread_data)
         }
         memset(buffer, 0, ETHERNET_FRAME_LENGTH);
     }
-
+    pthread_exit(NULL);
 }

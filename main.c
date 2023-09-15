@@ -1,5 +1,6 @@
-#include "vlan_tagger.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include "init/pthread_init.h"
 
 int main(
         int     argc,
@@ -10,6 +11,5 @@ int main(
         printf("Run the daemon like this: sudo ./vlan_tagger <name of the network interface>\n");
         exit(EXIT_FAILURE);
     }
-
     pthread_init(argv[1]);
 }

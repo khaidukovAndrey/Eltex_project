@@ -6,7 +6,7 @@
 
 int ip_converting(struct in_addr *in_addr_obj, const char *ip_str);
 int tag_converting(int *tag_int, const char *tag_str);
-int ip_comparison(struct in_addr ip_1, struct in_addr ip_2);
+int ip_comparison(const struct in_addr ip_1, const struct in_addr ip_2);
 int ip_str_to_int(char *ip_str, int *ip_int);
 int char_count(const char *str, char symbol);
 
@@ -16,13 +16,13 @@ int tag_rules_init(tag_rules_t **tag_rules_obj, int size)
     {
         return -1;
     }
-	
+
     *tag_rules_obj = calloc(size, sizeof(*tag_rules_obj));
     if (tag_rules_obj == NULL)
     {
         return -2;
     }
-	
+
     return 0;
 }
 
@@ -34,17 +34,17 @@ int tag_rules_clear(tag_rules_t **tag_rules_obj)
     }
 
     free(*tag_rules_obj);
-    
+
     return 0;
 }
 
-int tag_rules_check_collisions(tag_rules_t *tag_rules_obj, int size)
+int tag_rules_check_collisions(const tag_rules_t *tag_rules_obj, int size)
 {
     if(tag_rules_obj == NULL || size <= 0)
     {
         return -1;
     }
-	
+
     int err_count = 0;
     for(int i = 0; i < size; i++)
     {
@@ -58,12 +58,12 @@ int tag_rules_check_collisions(tag_rules_t *tag_rules_obj, int size)
             err_count++;
         }
     }
-	
+
     if(err_count > 0)
     {
         return err_count;
     }
-	
+
     err_count = 0;
     for(int i = 0; i < size; i++)
     {
@@ -96,12 +96,12 @@ int tag_rules_check_collisions(tag_rules_t *tag_rules_obj, int size)
             }
         }
     }
-	
+
     if(err_count > 0)
     {
         return err_count;
     }
-	
+
     err_count = 0;
     for(int i = 0; i < size; i++)
     {
@@ -110,12 +110,12 @@ int tag_rules_check_collisions(tag_rules_t *tag_rules_obj, int size)
             err_count++;
         }
     }
-	
+
     if(err_count > 0)
     {
         return err_count;
     }
-	
+
     return 0;
 }
 
@@ -131,7 +131,7 @@ int config_file_check(void)
     {
         return -2;
     }
-	
+
     return 0;
 }
 
@@ -141,13 +141,13 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
     {
         return -1;
     }
-	
+
     FILE* pfile;
     if((pfile = fopen(FILE_DIR, "r")) == NULL)
     {
         return -2;
     }
-	
+
     int i;
     for(i = 0;; i++)
     {
@@ -155,12 +155,12 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
         {
             return -3;
         }
-    
+
         char rule[37];
         char *prule;
         char *rule_part;
         int full_stop_count;
-		
+
         prule = fgets(rule, sizeof(rule), pfile);
         if(prule == NULL)
         {
@@ -173,48 +173,48 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
                 return -4;
             }
         }
-		
+
         full_stop_count = char_count(rule, '-');
         if(full_stop_count < 1 || full_stop_count > 2)
         {
             return -5;
         }
-		
+
         rule_part = strtok(rule, "-");
         if(rule_part == NULL)
         {
             return -6;
         }
-		
+
         if(ip_converting(&tag_rules_obj[i].ip_left, rule_part) != 0)
         {
             return -7;
         }
-		
+
         if(full_stop_count == 1)
         {
             tag_rules_obj[i].ip_right = tag_rules_obj[i].ip_left;
         }
         else
-        {	
+        {
             rule_part = strtok(NULL, "-");
             if(rule_part == NULL)
             {
                 return -6;
             }
-			
+
             if(ip_converting(&tag_rules_obj[i].ip_right, rule_part) != 0)
             {
                 return -7;
             }
         }
-					
+
         rule_part = strtok(NULL, "-");
         if(rule_part == NULL)
         {
             return -6;
         }
-		
+
         if(tag_converting(&tag_rules_obj[i].tag, rule_part) != 0)
         {
             return -8;
@@ -225,7 +225,7 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
     {
         return -9;
     }
-	
+
     return i;
 }
 
@@ -235,7 +235,7 @@ int ip_converting(struct in_addr *in_addr_obj, const char *ip_str)
     {
         return -1;
     }
-	
+
     if(inet_aton(ip_str, in_addr_obj) == 0)
     {
         return -2;
@@ -250,7 +250,7 @@ int tag_converting(int *tag_int, const char *tag_str)
     {
         return -1;
     }
-	
+
     int tag_int_tmp;
     tag_int_tmp = atoi(tag_str);
     if(tag_int_tmp == 0 && tag_str[0] != '0')
@@ -259,11 +259,11 @@ int tag_converting(int *tag_int, const char *tag_str)
     }
 
     *tag_int = tag_int_tmp;
-	
+
     return 0;
 }
 
-int ip_comparison(struct in_addr ip_1, struct in_addr ip_2)
+int ip_comparison(const struct in_addr ip_1, const struct in_addr ip_2)
 {
     char ip_1_str[16];
     char ip_2_str[16];
@@ -271,21 +271,21 @@ int ip_comparison(struct in_addr ip_1, struct in_addr ip_2)
     char *pip_2_str = ip_2_str;
     char *ip_1_str_tmp;
     char *ip_2_str_tmp;
-	
+
     ip_1_str_tmp = inet_ntoa(ip_1);
     if(ip_1_str_tmp == NULL)
     {
         return -1;
     }
-	
+
     memcpy(pip_1_str, ip_1_str_tmp, strlen(ip_1_str_tmp) + 1);
-	
+
     ip_2_str_tmp = inet_ntoa(ip_2);
     if(pip_2_str == NULL)
     {
         return -1;
     }
-	
+
     memcpy(pip_2_str, ip_2_str_tmp, strlen(ip_2_str_tmp) + 1);
 
     int ip_1_int[4];
@@ -299,7 +299,7 @@ int ip_comparison(struct in_addr ip_1, struct in_addr ip_2)
     {
         return -2;
     }
-	
+
     for(int i = 0; i < 4; i++)
     {
         if(ip_1_int[i] < ip_2_int[i])
@@ -330,21 +330,21 @@ int ip_str_to_int(char *ip_str, int *ip_int)
     {
         return -1;
     }
-	
+
     int i = 0;
     char *ip_str_part = strtok(ip_str, ".");
     while (ip_str_part != NULL)
-    { 
+    {
         ip_int[i] = atoi(ip_str_part);
         if(ip_int[i] == 0 && ip_str_part[0] != '0')
         {
             return -2;
         }
-		
+
         i++;
-        ip_str_part = strtok(NULL, "."); 
+        ip_str_part = strtok(NULL, ".");
     }
-	
+
     return 0;
 }
 
@@ -363,6 +363,6 @@ int char_count(const char *str, char symbol)
             count++;
         }
     }
-	
+
     return count;
 }

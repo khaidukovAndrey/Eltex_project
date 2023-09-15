@@ -14,7 +14,7 @@ typedef struct tag_rules
 
 int tag_rules_init(tag_rules_t **tag_rules_obj, int size);
 int tag_rules_clear(tag_rules_t **tag_rules_obj);
-int tag_rules_check_collisions(tag_rules_t *tag_rules_obj, int size);
+int tag_rules_check_collisions(const tag_rules_t *tag_rules_obj, int size);
 
 int config_file_check(void);
 int config_file_read(tag_rules_t *tag_rules_obj, int size);

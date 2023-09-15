@@ -124,6 +124,7 @@ ssize_t pop(
     {
         if (pthread_cond_wait(&q->condition, &q->cond_mutex) != 0)
         {
+            pthread_mutex_unlock(&q->cond_mutex);
             return -1;
         }
         pthread_mutex_unlock(&q->cond_mutex);

@@ -1,4 +1,14 @@
-#include "vlan_tagger.h"
+#include <sys/socket.h>
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
+#include <string.h>
+#include <errno.h>
+
+#include "stdlib.h"
+#include "../queue/queue.h"
+#include "../logger/logger.h"
+#include "../tagger/vlan_tagger.h"
+#include "pthread_init.h"
 
 void logging_programm_completion(struct thread_data params)
 {
@@ -95,7 +105,7 @@ void pthread_init(const char *interface_name)
         queue_destroy(&sender_queue);
     }
 
-    size = config_file_read(rules);
+    size = config_file_read(rules, 64);
     if (size < 0)
     {
         printL(ERROR, PARSER, "Error reading file/writing data to structure (error code: %d)!", size);
@@ -122,6 +132,7 @@ void pthread_init(const char *interface_name)
     saddr_len = sizeof(saddr);
     func_params.saddr_len = &saddr_len;
     func_params.tag_rules_obj = rules;
+    func_params.tag_rules_size = size;
 
     pthread_create(&tid[0], NULL, packet_sniffer, &func_params);
     printL(INFO, INITIATOR, "Thread №%d started", 0);
