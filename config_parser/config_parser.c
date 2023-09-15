@@ -8,11 +8,11 @@ int ip_converting(struct in_addr *in_addr_obj, const char *ip_str);
 int tag_converting(int *tag_int, const char *tag_str);
 int ip_comparison(struct in_addr ip_1, struct in_addr ip_2);
 int ip_str_to_int(char *ip_str, int *ip_int);
-int char_count(char *str, char symbol);
+int char_count(const char *str, char symbol);
 
 int tag_rules_init(tag_rules_t **tag_rules_obj, int size)
 {
-    if(size <= 0)
+    if(*tag_rules_obj != NULL || size <= 0)
     {
         return -1;
     }
@@ -26,9 +26,16 @@ int tag_rules_init(tag_rules_t **tag_rules_obj, int size)
     return 0;
 }
 
-void tag_rules_clear(tag_rules_t **tag_rules_obj)
+int tag_rules_clear(tag_rules_t **tag_rules_obj)
 {
+    if(*tag_rules_obj == NULL)
+    {
+        return -1;
+    }
+
     free(*tag_rules_obj);
+    
+    return 0;
 }
 
 int tag_rules_check_collisions(tag_rules_t *tag_rules_obj, int size)
@@ -128,7 +135,7 @@ int config_file_check(void)
     return 0;
 }
 
-int config_file_read(tag_rules_t *tag_rules_obj)
+int config_file_read(tag_rules_t *tag_rules_obj, int size)
 {
     if(tag_rules_obj == NULL)
     {
@@ -144,6 +151,11 @@ int config_file_read(tag_rules_t *tag_rules_obj)
     int i;
     for(i = 0;; i++)
     {
+        if(i == size)
+        {
+            return -3;
+        }
+    
         char rule[37];
         char *prule;
         char *rule_part;
@@ -158,25 +170,25 @@ int config_file_read(tag_rules_t *tag_rules_obj)
             }
             else
             {
-                return -3;
+                return -4;
             }
         }
 		
         full_stop_count = char_count(rule, '-');
         if(full_stop_count < 1 || full_stop_count > 2)
         {
-            return -4;
+            return -5;
         }
 		
         rule_part = strtok(rule, "-");
         if(rule_part == NULL)
         {
-            return -5;
+            return -6;
         }
 		
         if(ip_converting(&tag_rules_obj[i].ip_left, rule_part) != 0)
         {
-            return -6;
+            return -7;
         }
 		
         if(full_stop_count == 1)
@@ -188,30 +200,30 @@ int config_file_read(tag_rules_t *tag_rules_obj)
             rule_part = strtok(NULL, "-");
             if(rule_part == NULL)
             {
-                return -5;
+                return -6;
             }
 			
             if(ip_converting(&tag_rules_obj[i].ip_right, rule_part) != 0)
             {
-                return -6;
+                return -7;
             }
         }
 					
         rule_part = strtok(NULL, "-");
         if(rule_part == NULL)
         {
-            return -5;
+            return -6;
         }
 		
         if(tag_converting(&tag_rules_obj[i].tag, rule_part) != 0)
         {
-            return -7;
+            return -8;
         }
     }
 
     if(fclose(pfile) > 0)
     {
-        return -8;
+        return -9;
     }
 	
     return i;
@@ -336,8 +348,13 @@ int ip_str_to_int(char *ip_str, int *ip_int)
     return 0;
 }
 
-int char_count(char *str, char symbol)
+int char_count(const char *str, char symbol)
 {
+    if(str == NULL)
+    {
+        return -1;
+    }
+
     int count = 0;
     for(int i = 0; i < strlen(str); i++)
     {
