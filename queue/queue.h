@@ -5,7 +5,7 @@
 #include <sys/types.h>
 
 
-#define Q_SIZE 10 // Длина очереди
+#define Q_SIZE 100 // Длина очереди
 #define MAX_PKG_SIZE 1522 // Максимальная длина загружаемого пакета
 
 
