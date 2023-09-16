@@ -129,16 +129,16 @@ void *tagger(void *thread_data)
     if (params->tag_rules_obj == NULL)
     {
         printL(ERROR, TAGGER, "Configuration file not specified (error code: %d)!", -1);
-        logging_programm_completion(params);
-        stop_log();
+        params->should_exit = 1;
+        send_signal_queue(params->sender_queue);
         exit(EXIT_FAILURE);
     }
 
     if (!params->tag_rules_obj)
     {
         printL(ERROR, TAGGER, "tag_rules_obj is not exist");
-        logging_programm_completion(params);
-        stop_log();
+        params->should_exit = 1;
+        send_signal_queue(params->sender_queue);
         exit(EXIT_FAILURE);
     }
 
@@ -170,14 +170,14 @@ void *tagger(void *thread_data)
             }
             case -1: {
                 printL(ERROR, TAGGER, "No list of tagging rules");
-                logging_programm_completion(params);
-                stop_log();
+                params->should_exit = 1;
+                send_signal_queue(params->sender_queue);
                 exit(EXIT_FAILURE);
             }
             case -2: {
                 printL(ERROR, TAGGER, "The list of tagging rules does not contain any rules");
-                logging_programm_completion(params);
-                stop_log();
+                params->should_exit = 1;
+                send_signal_queue(params->sender_queue);
                 exit(EXIT_FAILURE);
             }
         }

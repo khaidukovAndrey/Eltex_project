@@ -36,8 +36,8 @@ void logging_programm_completion(struct thread_data* params)
     queue_destroy(params->sender_queue);
     printL(INFO, INITIATOR, "Sender queue destroyed.");
 
-    tag_rules_t** pTagRules = params->tag_rules_obj;
-    tag_rules_clear(pTagRules);
+    tag_rules_t* pTagRules = params->tag_rules_obj;
+    tag_rules_clear(&pTagRules);
     printL(INFO, INITIATOR, "The memory allocated for the file config structure is cleared.");
 
     stop_log();
@@ -66,7 +66,6 @@ void pthread_init(const char *interface_name)
     Queue_t sender_queue;
     pthread_t tid[THREADS_COUNT];
     tag_rules_t *rules;
-    func_params;
     struct sockaddr_ll saddr = { 0 };
 
     start_log();
@@ -127,7 +126,6 @@ void pthread_init(const char *interface_name)
     {
         printL(ERROR, INITIATOR, "Error setting up network interface for socket (error code: %d)!", errno);
         close(sock_r);
-        stop_log();
         exit(EXIT_FAILURE);
     }
 
@@ -138,7 +136,6 @@ void pthread_init(const char *interface_name)
     {
         printL(ERROR, INITIATOR, "Queue initialization error (error code: %d)", errno);
         close(sock_r);
-        stop_log();
         exit(EXIT_FAILURE);
     }
 
@@ -146,7 +143,6 @@ void pthread_init(const char *interface_name)
     {
         printL(ERROR, INITIATOR, "Queue initialization error (error code: %d)", errno);
         close(sock_r);
-        stop_log();
         exit(EXIT_FAILURE);
     }
 
@@ -181,7 +177,7 @@ void pthread_init(const char *interface_name)
         exit(EXIT_FAILURE);
     }
 
-    res = tag_rules_check_collisions(rules, size);
+    res = tag_rules_check_collisions((const tag_rules_t *) rules, size);
     if (res != 0)
     {
         printL(ERROR, PARSER, "Error when checking the configuration file for collisions (error code: %d)!", res);

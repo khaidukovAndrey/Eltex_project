@@ -12,7 +12,7 @@ typedef struct thread_data
     int *saddr_len;
     Queue_t *sniffer_queue;
     Queue_t *sender_queue;
-    tag_rules_t **tag_rules_obj;
+    tag_rules_t *tag_rules_obj;
     int tag_rules_size;
     struct sockaddr_ll *saddr;
     int should_exit;
