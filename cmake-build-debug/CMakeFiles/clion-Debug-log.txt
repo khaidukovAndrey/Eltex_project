@@ -1,0 +1,19 @@
+/snap/clion/250/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/snap/clion/250/bin/ninja/linux/x64/ninja -G Ninja -S /home/dude/Загрузки/vlan-tagger-replace_setsockopt -B /home/dude/Загрузки/vlan-tagger-replace_setsockopt/cmake-build-debug
+-- The C compiler identification is GNU 12.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+CMake Error at CMakeLists.txt:6 (add_executable):
+  Cannot find source file:
+
+    sender.h
+
+
+CMake Error at CMakeLists.txt:6 (add_executable):
+  No SOURCES given to target: vlan_tagger
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
