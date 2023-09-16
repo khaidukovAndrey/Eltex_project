@@ -3,6 +3,8 @@
 #include <linux/if_ether.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/resource.h>
+#include <signal.h>
 
 #include "stdlib.h"
 #include "queue/queue.h"
@@ -25,6 +27,21 @@ void logging_programm_completion(struct thread_data params)
     printL(INFO, INITIATOR, "The memory allocated for the file config structure is cleared.");
 }
 
+void signal_handler(int signal){
+    if (signal == SIGINT)
+    {
+        stop_log();
+        exit(EXIT_SUCCESS);
+    }
+    else if (signal == SIGSEGV)
+    {
+        stop_log();
+        exit(EXIT_FAILURE);
+    }
+
+}
+
+
 void pthread_init(const char *interface_name)
 {
     int sock_r;
@@ -39,6 +56,25 @@ void pthread_init(const char *interface_name)
     struct sockaddr_ll saddr = { 0 };
 
     start_log();
+
+    struct rlimit rlim;
+
+    rlim.rlim_cur = 8 * 1024 * 1024; // 8 MB in bytes
+    rlim.rlim_max = 8 * 1024 * 1024; // 8 MB in bytes
+
+    if (setrlimit(RLIMIT_STACK, &rlim) == 0)
+    {
+        printL(ERROR, INITIATOR, "Error setting stack size limit");
+    }
+    else
+    {
+        stop_log();
+        exit(EXIT_FAILURE);
+    }
+
+
+    signal(SIGINT, signal_handler);
+    signal(SIGSEGV, signal_handler);
 
     sock_r = socket(
             AF_PACKET,
@@ -59,8 +95,7 @@ void pthread_init(const char *interface_name)
             interface_name,
             strlen(interface_name)) < 0)
     {
-        printf("Symbols was written: %d\n",
-               printL(ERROR, INITIATOR, "Error setting up network interface for socket (error code: %d)!", errno));
+        printL(ERROR, INITIATOR, "Error setting up network interface for socket (error code: %d)!", errno);
         close(sock_r);
         stop_log();
         exit(EXIT_FAILURE);
@@ -138,10 +173,10 @@ void pthread_init(const char *interface_name)
     printL(INFO, INITIATOR, "Thread №%d started", 0);
 
     pthread_create(&tid[1], NULL, tagger, &func_params);
-    printL(INFO, INITIATOR, "Thread №%d started", 0);
+    printL(INFO, INITIATOR, "Thread №%d started", 1);
 
     pthread_create(&tid[2], NULL, packet_sender, &func_params);
-    printL(INFO, INITIATOR, "Thread №%d started", 1);
+    printL(INFO, INITIATOR, "Thread №%d started", 2);
 
     for (int j = 0; j < THREADS_COUNT; j++)
     {
