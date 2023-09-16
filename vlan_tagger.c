@@ -6,7 +6,7 @@ int num_of_rules = 10; // Что это?
     static unsigned char buffer[1522] = { 0 };
 static unsigned char second_buffer[1522] = { 0 };
 
-short define_tag_for_ip(uint32_t addr, tag_rules_t *tag_rules_obj, int size)
+short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size)
 {
 
     if (tag_rules_obj == NULL)
@@ -33,13 +33,13 @@ short define_tag_for_ip(uint32_t addr, tag_rules_t *tag_rules_obj, int size)
     return -2;
 }
 
-ssize_t read_packet(struct thread_data params)
+ssize_t read_packet(struct thread_data* params)
 {
     ssize_t packet_size = 0;
-    packet_size = pop(params.sniffer_queue, buffer);
+    packet_size = pop(params->sniffer_queue, buffer);
     if (packet_size == -1)
     {
-        return 0;
+        return -1;
     }
     if (packet_size < 46)
     {
@@ -116,14 +116,17 @@ unsigned short packet_editor(short tag, unsigned short packet_size)
 
 void *tagger(void *thread_data)
 {
+    if (!thread_data)
+    {
+        pthread_exit(NULL);
+    }
+
     short tag = 0;
     uint32_t addr = 0;
     ssize_t packet_size = 0;
-    struct thread_data params = { 0 };
+    struct thread_data* params = (struct thread_data*) thread_data;
 
-    params = *((struct thread_data *)thread_data);
-
-    if (params.tag_rules_obj == NULL)
+    if (params->tag_rules_obj == NULL)
     {
         printL(ERROR, TAGGER, "Configuration file not specified (error code: %d)!", -1);
         logging_programm_completion(params);
@@ -131,18 +134,27 @@ void *tagger(void *thread_data)
         exit(EXIT_FAILURE);
     }
 
-    if (!params.tag_rules_obj)
+    if (!params->tag_rules_obj)
     {
         printL(ERROR, TAGGER, "tag_rules_obj is not exist");
         logging_programm_completion(params);
         stop_log();
         exit(EXIT_FAILURE);
     }
-    while (1)
+
+    while (!params->should_exit)
     {
-        if ((packet_size = read_packet(params)) == 0)
+        if ((packet_size = read_packet(params)) < 1)
         {
-            continue;
+            if (packet_size == 0)
+            {
+                continue;
+            }
+
+            printL(ERROR, TAGGER, "pop error");
+            params->should_exit = 1;
+            send_signal_queue(params->sender_queue);
+            pthread_exit(NULL);
         }
 
         if (analyze_packet() != 0)
@@ -151,8 +163,9 @@ void *tagger(void *thread_data)
         }
 
         addr = get_packet_ip();
-        switch (tag = define_tag_for_ip(addr, params.tag_rules_obj, params.tag_rules_size)) {
-            case 0: {
+        switch (tag = define_tag_for_ip(addr, (const tag_rules_t *) params->tag_rules_obj, params->tag_rules_size)) {
+            case 0:
+            {
                 continue;
             }
             case -1: {
@@ -171,12 +184,9 @@ void *tagger(void *thread_data)
 
         packet_size = packet_editor(tag, packet_size);
 
-        if (push(params.sender_queue, second_buffer, packet_size) != packet_size)
+        if (push(params->sender_queue, second_buffer, packet_size) != packet_size)
         {
-            printL(WARNING, TAGGER, "Queue entry failed");
-            //logging_programm_completion(params);
-            //stop_log();
-            //exit(EXIT_FAILURE);
+            //printL(WARNING, TAGGER, "Queue entry failed");
         }
     }
     pthread_exit(NULL);

@@ -54,4 +54,6 @@ ssize_t back(
 
 int queue_destroy(Queue_t *); // Завершение работы с очередью (уничтожение файлов мьютексов)
 
+void send_signal_queue(Queue_t *);
+
 #endif //queue_h

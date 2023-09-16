@@ -235,3 +235,8 @@ void next(unsigned short *num)
 
     (*num)++;
 }
+
+void send_signal_queue(Queue_t *q)
+{
+    pthread_cond_signal(&q->condition);
+}

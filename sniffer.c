@@ -4,30 +4,41 @@
 #include "pthread_init.h"
 #include "errno.h"
 
-void *packet_sniffer(void *thread_data)
-{
-    int buffer_len;
-    unsigned char buffer[ETHERNET_FRAME_LENGTH] = { 0 };
-    struct thread_data params = { 0 };
+void *packet_sniffer(void *thread_data) {
 
-    params = *((struct thread_data *)thread_data);
-    while (1)
+    if (!thread_data)
     {
-        //if (!is_full(params.sniffer_queue))
-       // {
-            buffer_len = recvfrom(*params.socket, buffer, sizeof(buffer), 0, (struct sockaddr *)params.saddr, (socklen_t *)params.saddr_len);
-            if (buffer_len < 0)
+        pthread_exit(NULL);
+    }
+
+    long buffer_len;
+    unsigned char buffer[ETHERNET_FRAME_LENGTH] = {0};
+    struct thread_data* params = (struct thread_data *) thread_data;
+
+    int err_counter = 0;
+    long sent_bytes = 0;
+    while (!params->should_exit) {
+        buffer_len = recvfrom(*params->socket, buffer, sizeof(buffer), 0, (struct sockaddr *) params->saddr,
+                              (socklen_t *) params->saddr_len);
+        if (buffer_len < 0)
+        {
+            if (err_counter == 3)
             {
-                printf("Symbols was written: %d\n",
-                       printL(ERROR, SNIFFER, "Error receiving packets (error code: %d)!", errno));
-                logging_programm_completion(params);
-                stop_log();
-                exit(EXIT_FAILURE);
+                printL(ERROR, SNIFFER, "Error receiving packets (error code: %d)!", errno);
+                params->should_exit = 1;
+                send_signal_queue(params->sniffer_queue);
+                send_signal_queue(params->sender_queue);
                 pthread_exit(NULL);
             }
-            int po = push(params.sniffer_queue, buffer, buffer_len);
-            printf("Отправлено в очередь %d байт\n", po);
-        //}
+            err_counter++;
+            printL(WARNING, SNIFFER, "Error receiving packets (error code: %d)!", errno);
+        }
+        else
+        {
+            err_counter = 0;
+            sent_bytes = push(params->sniffer_queue, buffer, buffer_len);
+            printf("Отправлено в очередь %ld байт\n", sent_bytes);
+        }
     }
 
     pthread_exit(NULL);

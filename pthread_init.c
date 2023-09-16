@@ -12,33 +12,47 @@
 #include "vlan_tagger.h"
 #include "pthread_init.h"
 
-void logging_programm_completion(struct thread_data params)
+static thread_data func_params;
+
+void logging_programm_completion(struct thread_data* params)
 {
-    close(*params.socket);
-    printL(INFO, INITIATOR, "Socket closed.");
-
-    queue_destroy(params.sniffer_queue);
-    printL(INFO, INITIATOR, "Sniffer queue destroyed.");
-
-    queue_destroy(params.sender_queue);
-    printL(INFO, INITIATOR, "Sender queue destroyed.");
-
-    //tag_rules_clear(params.tag_rules_obj);
-    printL(INFO, INITIATOR, "The memory allocated for the file config structure is cleared.");
-}
-
-void signal_handler(int signal){
-    if (signal == SIGINT)
+    if (!params)
     {
-        stop_log();
-        exit(EXIT_SUCCESS);
-    }
-    else if (signal == SIGSEGV)
-    {
+        printL(ERROR,INITIATOR,"Incorrect shutdown!");
         stop_log();
         exit(EXIT_FAILURE);
     }
 
+    params->should_exit = 1;
+    send_signal_queue(params->sender_queue);
+    send_signal_queue(params->sniffer_queue);
+
+    close(*params->socket);
+    printL(INFO, INITIATOR, "Socket closed.");
+
+    queue_destroy(params->sniffer_queue);
+    printL(INFO, INITIATOR, "Sniffer queue destroyed.");
+
+    queue_destroy(params->sender_queue);
+    printL(INFO, INITIATOR, "Sender queue destroyed.");
+
+    tag_rules_t** pTagRules = params->tag_rules_obj;
+    tag_rules_clear(pTagRules);
+    printL(INFO, INITIATOR, "The memory allocated for the file config structure is cleared.");
+
+    stop_log();
+}
+
+void signal_handler(int signal){
+    logging_programm_completion(&func_params);
+    if (signal == SIGINT)
+    {
+        exit(EXIT_SUCCESS);
+    }
+    else if (signal == SIGSEGV)
+    {
+        exit(EXIT_FAILURE);
+    }
 }
 
 
@@ -52,7 +66,7 @@ void pthread_init(const char *interface_name)
     Queue_t sender_queue;
     pthread_t tid[THREADS_COUNT];
     tag_rules_t *rules;
-    struct thread_data func_params = { 0 };
+    func_params;
     struct sockaddr_ll saddr = { 0 };
 
     start_log();
@@ -62,19 +76,36 @@ void pthread_init(const char *interface_name)
     rlim.rlim_cur = 8 * 1024 * 1024; // 8 MB in bytes
     rlim.rlim_max = 8 * 1024 * 1024; // 8 MB in bytes
 
-    if (setrlimit(RLIMIT_STACK, &rlim) == 0)
+    if (setrlimit(RLIMIT_STACK, &rlim) != 0)
     {
         printL(ERROR, INITIATOR, "Error setting stack size limit");
-    }
-    else
-    {
         stop_log();
         exit(EXIT_FAILURE);
     }
 
 
-    signal(SIGINT, signal_handler);
-    signal(SIGSEGV, signal_handler);
+
+    if (signal(SIGINT, signal_handler) == SIG_ERR)
+    {
+        printL(ERROR, INITIATOR, "Signal %s processing error", "SIGINT");
+        stop_log();
+        exit(EXIT_FAILURE);
+    }
+
+    if (signal(SIGSEGV, signal_handler) == SIG_ERR)
+    {
+        printL(ERROR, INITIATOR, "Signal %s processing error","SIGSEGV");
+        stop_log();
+        exit(EXIT_FAILURE);
+    }
+    if (signal(SIGTERM, signal_handler) == SIG_ERR)
+    {
+        printL(ERROR, INITIATOR, "Signal %s processing error","SIGTERM");
+        stop_log();
+        exit(EXIT_FAILURE);
+    }
+
+
 
     sock_r = socket(
             AF_PACKET,
@@ -82,8 +113,7 @@ void pthread_init(const char *interface_name)
             htons(ETH_P_ALL));
     if (sock_r < 0)
     {
-        printf("Symbols was written: %d\n",
-               printL(ERROR, INITIATOR, "Socket opening error (error code: %d)!", errno));
+        printL(ERROR, INITIATOR, "Socket opening error (error code: %d)!", errno);
         stop_log();
         exit(EXIT_FAILURE);
     }
@@ -106,8 +136,7 @@ void pthread_init(const char *interface_name)
 
     if (init(&sniffer_queue) == -1)
     {
-        printf("Symbols was written: %d\n",
-               printL(ERROR, INITIATOR, "Queue initialization error (error code: %d)", errno));
+        printL(ERROR, INITIATOR, "Queue initialization error (error code: %d)", errno);
         close(sock_r);
         stop_log();
         exit(EXIT_FAILURE);
@@ -115,8 +144,7 @@ void pthread_init(const char *interface_name)
 
     if (init(&sender_queue) == -1)
     {
-        printf("Symbols was written: %d\n",
-               printL(ERROR, INITIATOR, "Queue initialization error (error code: %d)", errno));
+        printL(ERROR, INITIATOR, "Queue initialization error (error code: %d)", errno);
         close(sock_r);
         stop_log();
         exit(EXIT_FAILURE);
@@ -129,6 +157,7 @@ void pthread_init(const char *interface_name)
         close(sock_r);
         queue_destroy(&sniffer_queue);
         queue_destroy(&sender_queue);
+        exit(EXIT_FAILURE);
     }
 
     res = tag_rules_init(&rules, 64);
@@ -138,6 +167,7 @@ void pthread_init(const char *interface_name)
         close(sock_r);
         queue_destroy(&sniffer_queue);
         queue_destroy(&sender_queue);
+        exit(EXIT_FAILURE);
     }
 
     size = config_file_read(rules, 64);
@@ -148,6 +178,7 @@ void pthread_init(const char *interface_name)
         queue_destroy(&sniffer_queue);
         queue_destroy(&sender_queue);
         tag_rules_clear(&rules);
+        exit(EXIT_FAILURE);
     }
 
     res = tag_rules_check_collisions(rules, size);
@@ -158,6 +189,7 @@ void pthread_init(const char *interface_name)
         queue_destroy(&sniffer_queue);
         queue_destroy(&sender_queue);
         tag_rules_clear(&rules);
+        exit(EXIT_FAILURE);
     }
 
     func_params.socket = &sock_r;
@@ -168,6 +200,7 @@ void pthread_init(const char *interface_name)
     func_params.saddr_len = &saddr_len;
     func_params.tag_rules_obj = rules;
     func_params.tag_rules_size = size;
+    func_params.should_exit = 0;
 
     pthread_create(&tid[0], NULL, packet_sniffer, &func_params);
     printL(INFO, INITIATOR, "Thread №%d started", 0);
@@ -184,7 +217,7 @@ void pthread_init(const char *interface_name)
         printL(INFO, INITIATOR, "Thread №%d completed", j);
     }
 
-    logging_programm_completion(func_params);
+    logging_programm_completion(&func_params);
 
     stop_log();
 }

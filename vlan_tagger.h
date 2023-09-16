@@ -12,9 +12,10 @@ typedef struct thread_data
     int *saddr_len;
     Queue_t *sniffer_queue;
     Queue_t *sender_queue;
-    const tag_rules_t *tag_rules_obj;
+    tag_rules_t **tag_rules_obj;
     int tag_rules_size;
     struct sockaddr_ll *saddr;
+    int should_exit;
 } thread_data;
 
 #define ETHERNET_FRAME_LENGTH 1522
@@ -26,8 +27,8 @@ void *tagger(void *thread_data);
 unsigned short packet_editor(short tag, unsigned short packet_size);
 uint32_t get_packet_ip(void);
 int analyze_packet(void);
-ssize_t read_packet(struct thread_data params);
-short define_tag_for_ip(uint32_t addr, tag_rules_t *tag_rules_obj, int size);
+ssize_t read_packet(struct thread_data *params);
+short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size);
 
 void *packet_sender(void *thread_data);
 
