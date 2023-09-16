@@ -2,7 +2,7 @@
 #include "pthread_init.h"
 #include "logger/logger.h"
 
-int num_of_rules = 10; // Что это?
+//int num_of_rules = 10; // Что это?
     static unsigned char buffer[1522] = { 0 };
 static unsigned char second_buffer[1522] = { 0 };
 
@@ -14,7 +14,7 @@ short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size
         return -1;
     }
 
-    if (num_of_rules == 0)
+    if (size == 0)
     {
         return -2;
     }
@@ -30,7 +30,7 @@ short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size
         }
     }
 
-    return -2;
+    return 0;
 }
 
 ssize_t read_packet(struct thread_data* params)
