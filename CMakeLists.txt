@@ -3,6 +3,6 @@ project(vlan_tagger C)
 
 set(CMAKE_C_STANDARD 23)
 
-add_executable(vlan_tagger main.c tagger/vlan_tagger.c tagger/vlan_tagger.h main.c sniffer/sniffer.c sender/sender.h
-        sender/sender.c queue/queue.c queue/queue.h logger/logger.c logger/logger.h config_parser/config_parser.c
-        config_parser/config_parser.h init/pthread_init.c)
+add_executable(vlan_tagger main.c vlan_tagger.c vlan_tagger.h main.c sniffer.c sender.h
+        sender.c queue/queue.c queue/queue.h logger/logger.c logger/logger.h config_parser/config_parser.c
+        config_parser/config_parser.h pthread_init.c)

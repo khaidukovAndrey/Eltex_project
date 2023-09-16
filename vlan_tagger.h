@@ -2,8 +2,8 @@
 #define sniffer_header
 
 
-#include "../queue/queue.h"
-#include "../config_parser/config_parser.h"
+#include "queue/queue.h"
+#include "config_parser/config_parser.h"
 
 //Структура для отправки в потоки
 typedef struct thread_data

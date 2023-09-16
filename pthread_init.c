@@ -5,9 +5,9 @@
 #include <errno.h>
 
 #include "stdlib.h"
-#include "../queue/queue.h"
-#include "../logger/logger.h"
-#include "../tagger/vlan_tagger.h"
+#include "queue/queue.h"
+#include "logger/logger.h"
+#include "vlan_tagger.h"
 #include "pthread_init.h"
 
 void logging_programm_completion(struct thread_data params)

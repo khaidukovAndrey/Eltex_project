@@ -1,8 +1,8 @@
 #include <string.h>
-#include "../tagger/vlan_tagger.h"
-#include "../logger/logger.h"
+#include "vlan_tagger.h"
+#include "logger/logger.h"
 #include "errno.h"
-#include "../init/pthread_init.h"
+#include "pthread_init.h"
 
 void *packet_sender(void *thread_data)
 {

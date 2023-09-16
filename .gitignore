@@ -1,5 +1,8 @@
-CMakeLists.txt
-log
-cmake-build-debug
+*log
+*cmake-build-debug
 *.idea
-main.c
+vlan-tagger.cfg
+*/CMakeLists.txt
+*/.gitignore
+*/main.c
+*CMakeFiles

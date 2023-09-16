@@ -1,7 +1,7 @@
 #ifndef pthread_init_h
 #define pthread_init_h
 
-#include "../tagger/vlan_tagger.h"
+#include "vlan_tagger.h"
 
 void pthread_init(const char *);
 

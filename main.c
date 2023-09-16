@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "init/pthread_init.h"
+#include "pthread_init.h"
 
 int main(
         int     argc,

@@ -1,6 +1,6 @@
 #include "vlan_tagger.h"
-#include "../init/pthread_init.h"
-#include "../logger/logger.h"
+#include "pthread_init.h"
+#include "logger/logger.h"
 
 int num_of_rules = 10; // Что это?
     static unsigned char buffer[1522] = { 0 };
