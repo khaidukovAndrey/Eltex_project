@@ -67,7 +67,7 @@ void pthread_init(const char *interface_name)
     Queue_t sniffer_queue;
     Queue_t sender_queue;
     pthread_t tid[THREADS_COUNT];
-    tag_rules_t *rules;
+    tag_rules_t *rules = NULL;
     struct sockaddr_ll saddr = { 0 };
 
     start_log();

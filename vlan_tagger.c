@@ -1,5 +1,4 @@
 #include "vlan_tagger.h"
-#include "pthread_init.h"
 #include "logger/logger.h"
 
 
@@ -137,7 +136,7 @@ void *tagger(void *thread_data)
         printL(ERROR, TAGGER, "Configuration file not specified (error code: %d)!", -1);
         params->should_exit = 1;
         send_signal_queue(params->sender_queue);
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     if (!params->tag_rules_obj)
@@ -145,7 +144,7 @@ void *tagger(void *thread_data)
         printL(ERROR, TAGGER, "tag_rules_obj is not exist");
         params->should_exit = 1;
         send_signal_queue(params->sender_queue);
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     while (!params->should_exit)
@@ -174,13 +173,13 @@ void *tagger(void *thread_data)
                 printL(ERROR, TAGGER, "No list of tagging rules");
                 params->should_exit = 1;
                 send_signal_queue(params->sender_queue);
-                exit(EXIT_FAILURE);
+                pthread_exit(NULL);
             }
             case -2: {
                 printL(ERROR, TAGGER, "The list of tagging rules does not contain any rules");
                 params->should_exit = 1;
                 send_signal_queue(params->sender_queue);
-                exit(EXIT_FAILURE);
+                pthread_exit(NULL);
             }
             case -3:
             {

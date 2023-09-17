@@ -17,10 +17,9 @@ int tag_rules_init(tag_rules_t **tag_rules_obj, int size)
         return -1;
     }
 
-    *tag_rules_obj = calloc(size, sizeof(*tag_rules_obj));
+    *tag_rules_obj = (tag_rules_t*) calloc(size, sizeof(tag_rules_t));
 
-
-        if (tag_rules_obj == NULL)
+    if (tag_rules_obj == NULL)
     {
         return -2;
     }
@@ -155,6 +154,7 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
     {
         if(i == size)
         {
+            fclose(pfile);
             return -3;
         }
 
@@ -172,6 +172,7 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
             }
             else
             {
+                fclose(pfile);
                 return -4;
             }
         }
@@ -179,17 +180,20 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
         full_stop_count = char_count(rule, '-');
         if(full_stop_count < 1 || full_stop_count > 2)
         {
+            fclose(pfile);
             return -5;
         }
 
         rule_part = strtok(rule, "-");
         if(rule_part == NULL)
         {
+            fclose(pfile);
             return -6;
         }
 
         if(ip_converting(&tag_rules_obj[i].ip_left, rule_part) != 0)
         {
+            fclose(pfile);
             return -7;
         }
 
@@ -202,11 +206,13 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
             rule_part = strtok(NULL, "-");
             if(rule_part == NULL)
             {
+                fclose(pfile);
                 return -6;
             }
 
             if(ip_converting(&tag_rules_obj[i].ip_right, rule_part) != 0)
             {
+                fclose(pfile);
                 return -7;
             }
         }
@@ -214,16 +220,18 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
         rule_part = strtok(NULL, "-");
         if(rule_part == NULL)
         {
+            fclose(pfile);
             return -6;
         }
 
         if(tag_converting(&tag_rules_obj[i].tag, rule_part) != 0)
         {
+            fclose(pfile);
             return -8;
         }
     }
 
-    if(fclose(pfile) > 0)
+    if(fclose(pfile) == EOF)
     {
         return -9;
     }
