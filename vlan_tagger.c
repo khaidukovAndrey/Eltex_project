@@ -82,14 +82,8 @@ uint32_t get_packet_ip(void)
 
     for (int i = 30; i < 34; i++)
     {
-        if (i != 33)
-        {
-            addr = (addr | buffer[i]) << 8;
-        }
-        else
-        {
-            addr = (addr | buffer[i]);
-        }
+        addr = addr << 8;
+        addr = (addr | buffer[i]);
     }
 
     return addr;
