@@ -1,3 +1,9 @@
+#include "stdlib.h"
+#include "queue/queue.h"
+#include "logger/logger.h"
+#include "vlan_tagger.h"
+#include "pthread_init.h"
+
 #include <sys/socket.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
@@ -8,24 +14,19 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 
-#include "stdlib.h"
-#include "queue/queue.h"
-#include "logger/logger.h"
-#include "vlan_tagger.h"
-#include "pthread_init.h"
-
 static thread_data func_params;
 
-void logging_programm_completion(struct thread_data* params)
+void logging_programm_completion(struct thread_data *params)
 {
     if (!params)
     {
-        printL(ERROR,INITIATOR,"Incorrect shutdown!");
+        printL(ERROR, INITIATOR, "Incorrect shutdown!");
         stop_log();
         exit(EXIT_FAILURE);
     }
 
     params->should_exit = 1;
+
     send_signal_queue(params->sender_queue);
     send_signal_queue(params->sniffer_queue);
 
@@ -38,7 +39,8 @@ void logging_programm_completion(struct thread_data* params)
     queue_destroy(params->sender_queue);
     printL(INFO, INITIATOR, "Sender queue destroyed.");
 
-    tag_rules_t* pTagRules = params->tag_rules_obj;
+    tag_rules_t *pTagRules = params->tag_rules_obj;
+
     tag_rules_clear(&pTagRules);
     printL(INFO, INITIATOR, "The memory allocated for the file config structure is cleared.");
 
@@ -51,7 +53,6 @@ void signal_handler(int signal)
     exit(EXIT_SUCCESS);
 }
 
-
 void pthread_init(const char *interface_name)
 {
     int sock_r;
@@ -63,13 +64,12 @@ void pthread_init(const char *interface_name)
     pthread_t tid[THREADS_COUNT];
     tag_rules_t *rules = NULL;
     struct sockaddr_ll saddr = { 0 };
-
-    start_log();
-
     struct rlimit rlim;
 
     rlim.rlim_cur = 8 * 1024 * 1024; // 8 MB in bytes
     rlim.rlim_max = 8 * 1024 * 1024; // 8 MB in bytes
+
+    start_log();
 
     if (setrlimit(RLIMIT_STACK, &rlim) != 0)
     {
@@ -77,7 +77,6 @@ void pthread_init(const char *interface_name)
         stop_log();
         exit(EXIT_FAILURE);
     }
-
 
     if (signal(SIGINT, signal_handler) == SIG_ERR)
     {
@@ -88,23 +87,19 @@ void pthread_init(const char *interface_name)
 
     if (signal(SIGSEGV, signal_handler) == SIG_ERR)
     {
-        printL(ERROR, INITIATOR, "Signal %s processing error","SIGSEGV");
+        printL(ERROR, INITIATOR, "Signal %s processing error", "SIGSEGV");
         stop_log();
         exit(EXIT_FAILURE);
     }
+
     if (signal(SIGTERM, signal_handler) == SIG_ERR)
     {
-        printL(ERROR, INITIATOR, "Signal %s processing error","SIGTERM");
+        printL(ERROR, INITIATOR, "Signal %s processing error", "SIGTERM");
         stop_log();
         exit(EXIT_FAILURE);
     }
 
-
-
-    sock_r = socket(
-            AF_PACKET,
-            SOCK_RAW,
-            htons(ETH_P_ALL));
+    sock_r = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (sock_r < 0)
     {
         printL(ERROR, INITIATOR, "Socket opening error (error code: %d)!", errno);
@@ -114,22 +109,28 @@ void pthread_init(const char *interface_name)
 
     // Получаем индекс сетевого интерфейса по его имени
     struct ifreq ifr;
+
     memset(&ifr, 0, sizeof(ifr));
     strncpy(ifr.ifr_name, interface_name, sizeof(ifr.ifr_name));
-    if (ioctl(sock_r, SIOCGIFINDEX, &ifr) == -1) {
+
+    if (ioctl(sock_r, SIOCGIFINDEX, &ifr) == -1)
+    {
         printL(ERROR, INITIATOR, "Error with interface id");
-               close(sock_r);
+        close(sock_r);
         exit(EXIT_FAILURE);
     }
 
     // Привязываем соксет к конкретному интерфейсу
     struct sockaddr_ll sa;
+    
     memset(&sa, 0, sizeof(sa));
+
     sa.sll_family = AF_PACKET;
     sa.sll_protocol = htons(ETH_P_ALL);
     sa.sll_ifindex = ifr.ifr_ifindex;
 
-    if (bind(sock_r, (struct sockaddr *)&sa, sizeof(sa)) == -1) {
+    if (bind(sock_r, (struct sockaddr *)&sa, sizeof(sa)) == -1)
+    {
         printL(ERROR, INITIATOR, "Error setting up network interface for socket (error code: %d)!", errno);
         close(sock_r);
         exit(EXIT_FAILURE);
@@ -183,7 +184,7 @@ void pthread_init(const char *interface_name)
         exit(EXIT_FAILURE);
     }
 
-    res = tag_rules_check_collisions((const tag_rules_t *) rules, size);
+    res = tag_rules_check_collisions((const tag_rules_t *)rules, size);
     if (res != 0)
     {
         printL(ERROR, PARSER, "Error when checking the configuration file for collisions (error code: %d)!", res);

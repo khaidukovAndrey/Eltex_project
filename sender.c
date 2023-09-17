@@ -1,8 +1,9 @@
-#include <string.h>
 #include "vlan_tagger.h"
 #include "logger/logger.h"
 #include "errno.h"
 #include "pthread_init.h"
+
+#include <string.h>
 
 void* packet_sender(void *thread_data)
 {
@@ -30,7 +31,7 @@ void* packet_sender(void *thread_data)
         printf("Получено из очереди %ld байт\n", bytes_read);
 
         ssize_t bytes_sent = sendto(*params->socket, buffer, bytes_read, 0,
-                                    (struct sockaddr *)params->saddr, *params->saddr_len);
+                                 (struct sockaddr *)params->saddr, *params->saddr_len);
 
         if (bytes_sent == -1)
         {
@@ -41,7 +42,9 @@ void* packet_sender(void *thread_data)
                 send_signal_queue(params->sniffer_queue);
                 pthread_exit(NULL);
             }
+
             err_counter++;
+
             printL(WARNING, SENDER, "Error sending packets (error code: %d)!", errno);
         }
         else
@@ -49,6 +52,7 @@ void* packet_sender(void *thread_data)
             err_counter = 0;
             printf("Отправлено %ld байт\n", bytes_sent);
         }
+
         memset(buffer, 0, ETHERNET_FRAME_LENGTH);
 
     }
