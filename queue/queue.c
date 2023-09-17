@@ -1,7 +1,8 @@
 #include "queue.h"
 #include <string.h>
 
-void next(unsigned short *); // Получить индекс следующего элемента
+// Получение индекса следующего элемента
+void next(unsigned short *);
 
 // Инициализация очереди
 int init(Queue_t *q)
@@ -74,7 +75,8 @@ ssize_t push(
         return 0;
     }
 
-    if (!is_full(q)) // Проверка на наличие свободных мест в очереди
+    // Проверка на наличие свободных мест в очереди
+    if (!is_full(q))
     {
         pthread_rwlock_wrlock(&q->rw_lock);
 
@@ -82,9 +84,7 @@ ssize_t push(
         q->pkg_sizes[q->rear] = pkg_size;
         next(&q->rear);
 
-        pthread_mutex_lock(&q->cond_mutex);
         pthread_cond_signal(&q->condition);
-        pthread_mutex_unlock(&q->cond_mutex);
 
         pthread_rwlock_unlock(&q->rw_lock);
 
@@ -124,6 +124,7 @@ ssize_t pop(
     {
         if (pthread_cond_wait(&q->condition, &q->cond_mutex) != 0)
         {
+            pthread_mutex_unlock(&q->cond_mutex);
             return -1;
         }
         pthread_mutex_unlock(&q->cond_mutex);
@@ -233,4 +234,9 @@ void next(unsigned short *num)
     }
 
     (*num)++;
+}
+
+void send_signal_queue(Queue_t *q)
+{
+    pthread_cond_signal(&q->condition);
 }

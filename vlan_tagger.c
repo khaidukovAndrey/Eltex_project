@@ -1,57 +1,47 @@
 #include "vlan_tagger.h"
+#include "logger/logger.h"
 
-Queue_t *in_queue;
-Queue_t *out_queue;
-
-int num_of_rules = 10;
 static unsigned char buffer[1522] = { 0 };
 static unsigned char second_buffer[1522] = { 0 };
 
-short difine_tag_for_ip(uint32_t addr, const tag_rules_t **tag_rules_obj)
+short define_tag_for_ip(uint32_t addr, const tag_rules_t *tag_rules_obj, int size)
 {
-
     if (tag_rules_obj == NULL)
     {
         return -1;
     }
 
-    if (num_of_rules == 0)
+    if (size == 0)
     {
         return -2;
     }
 
-    int k = 0;
-
-    while (k < num_of_rules &&
-           (*tag_rules_obj)[k].ip_left.s_addr <= addr &&
-           (*tag_rules_obj)[k].ip_right.s_addr >= addr)
+    for (int i = 0; i < size; ++i)
     {
-        if (*tag_rules_obj == NULL)
+
+        if (ntohl(tag_rules_obj[i].ip_left.s_addr) <= addr &&
+            ntohl(tag_rules_obj[i].ip_right.s_addr) >= addr)
         {
-            return -1;
+            return (tag_rules_obj)[i].tag;
         }
-        k++;
     }
 
-    if (k == num_of_rules)
-    {
-        return (*tag_rules_obj)[k].tag;
-    }
-
-    return 0;
+    return -3;
 }
 
-ssize_t read_packet(void)
+ssize_t read_packet(struct thread_data *params)
 {
     ssize_t packet_size = 0;
-    packet_size = pop(in_queue, buffer);
+    packet_size = pop(params->sniffer_queue, buffer);
+
     if (packet_size == -1)
     {
-        return 0;
+        return -1;
     }
+
     if (packet_size < 46)
     {
-        printL(2, 3, "The packet is the wrong size. Discarded");
+        printL(WARNING, TAGGER, "The packet is the wrong size. Discarded");
         return 0;
     }
 
@@ -65,19 +55,19 @@ int analyze_packet(void)
 
     if (type_field <= 1500)
     {
-        printL(0, 3, "The packet format is not Etnernet II");
+        printL(INFO, TAGGER, "The packet format is not Etnernet II");
         return -1;
     }
 
     if (type_field == 0x8100)
     {
-        printL(0, 3, "The packet is already tagged");
+        printL(INFO, TAGGER, "The packet is already tagged");
         return -1;
     }
 
     if (type_field != 0x0800)
     {
-        printL(0, 3, "The protocol of the packet is not ip");
+        printL(INFO, TAGGER, "The protocol of the packet is not ip");
         return -2;
     }
 
@@ -90,7 +80,14 @@ uint32_t get_packet_ip(void)
 
     for (int i = 30; i < 34; i++)
     {
-        addr = (addr | buffer[30]) << 8;
+        if (i != 33)
+        {
+            addr = (addr | buffer[i]) << 8;
+        }
+        else
+        {
+            addr = (addr | buffer[i]);
+        }
     }
 
     return addr;
@@ -122,28 +119,47 @@ unsigned short packet_editor(short tag, unsigned short packet_size)
     return packet_size;
 }
 
-int tagger(const tag_rules_t **tag_rules_obj)
+void *tagger(void *thread_data)
 {
+    if (!thread_data)
+    {
+        pthread_exit(NULL);
+    }
+
     short tag = 0;
     uint32_t addr = 0;
     ssize_t packet_size = 0;
+    struct thread_data *params = (struct thread_data *)thread_data;
 
-    if (tag_rules_obj == NULL)
+    if (params->tag_rules_obj == NULL)
     {
-        return -1;
+        printL(ERROR, TAGGER, "Configuration file not specified (error code: %d)!", -1);
+        params->should_exit = 1;
+        send_signal_queue(params->sender_queue);
+        pthread_exit(NULL);
     }
 
-    if (!tag_rules_obj)
+    if (!params->tag_rules_obj)
     {
-        printL(1, 3, "tag_rules_obj is not exist");
-        exit(EXIT_FAILURE);
+        printL(ERROR, TAGGER, "tag_rules_obj is not exist");
+        params->should_exit = 1;
+        send_signal_queue(params->sender_queue);
+        pthread_exit(NULL);
     }
 
-    while (1)
+    while (!params->should_exit)
     {
-        if (packet_size = read_packet() == 0)
+        if ((packet_size = read_packet(params)) < 1)
         {
-            continue;
+            if (packet_size == 0)
+            {
+                continue;
+            }
+
+            printL(ERROR, TAGGER, "pop error");
+            params->should_exit = 1;
+            send_signal_queue(params->sender_queue);
+            pthread_exit(NULL);
         }
 
         if (analyze_packet() != 0)
@@ -153,29 +169,37 @@ int tagger(const tag_rules_t **tag_rules_obj)
 
         addr = get_packet_ip();
 
-        switch (tag = difine_tag_for_ip(addr, tag_rules_obj))
+        switch (tag = define_tag_for_ip(addr, 
+                          (const tag_rules_t *)params->tag_rules_obj, 
+                          params->tag_rules_size))
         {
-        case 0:
-            continue;
-            break;
-        case -1:
-            printL(1, 3, "No list of tagging rules");
-            exit(EXIT_FAILURE);
-            break;
-        case -2:
-            printL(1, 3, "The list of tagging rules does not contain any rules");
-            exit(EXIT_FAILURE);
-            break;
+            case -1:
+            {
+                printL(ERROR, TAGGER, "No list of tagging rules");
+                params->should_exit = 1;
+                send_signal_queue(params->sender_queue);
+                pthread_exit(NULL);
+            }
+            case -2:
+            {
+                printL(ERROR, TAGGER, "The list of tagging rules does not contain any rules");
+                params->should_exit = 1;
+                send_signal_queue(params->sender_queue);
+                pthread_exit(NULL);
+            }
+            case -3:
+            {
+                continue;
+            }
         }
 
         packet_size = packet_editor(tag, packet_size);
 
-        if (push(out_queue, second_buffer, packet_size) != packet_size)
+        if (push(params->sender_queue, second_buffer, packet_size) != packet_size)
         {
-            printL(1, 3, "Queue entry failed");
-            exit(EXIT_FAILURE);
+            printL(WARNING, TAGGER, "Queue entry failed");
         }
     }
 
-    return 0;
+    pthread_exit(NULL);
 }

@@ -16,4 +16,3 @@ $(LIB_OBJ): $(SOURCES)
 
 clean:
 	rm -rf *.o *.gch *.a
-
