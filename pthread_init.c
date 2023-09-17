@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/resource.h>
+#include <signal.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 
@@ -66,7 +67,7 @@ void pthread_init(const char *interface_name)
     Queue_t sniffer_queue;
     Queue_t sender_queue;
     pthread_t tid[THREADS_COUNT];
-    tag_rules_t *rules;
+    tag_rules_t *rules = NULL;
     struct sockaddr_ll saddr = { 0 };
 
     start_log();
@@ -119,7 +120,8 @@ void pthread_init(const char *interface_name)
     }
 
     // Получаем индекс сетевого интерфейса по его имени
-    struct ifreq ifr = { 0 };
+    struct ifreq ifr;
+    memset(&ifr, 0, sizeof(ifr));
     strncpy(ifr.ifr_name, interface_name, sizeof(ifr.ifr_name));
     if (ioctl(sock_r, SIOCGIFINDEX, &ifr) == -1) {
         printL(ERROR, INITIATOR, "Error with interface id");
@@ -128,7 +130,8 @@ void pthread_init(const char *interface_name)
     }
 
     // Привязываем соксет к конкретному интерфейсу
-    struct sockaddr_ll sa = { 0 };
+    struct sockaddr_ll sa;
+    memset(&sa, 0, sizeof(sa));
     sa.sll_family = AF_PACKET;
     sa.sll_protocol = htons(ETH_P_ALL);
     sa.sll_ifindex = ifr.ifr_ifindex;
@@ -166,7 +169,7 @@ void pthread_init(const char *interface_name)
         exit(EXIT_FAILURE);
     }
 
-    res = tag_rules_init(&rules, 64);
+    res = tag_rules_init(&rules, MAX_NUM_OF_RUL);
     if (res != 0)
     {
         printL(ERROR, PARSER, "Error in allocating memory for the configuration file structure (error code: %d)!", res);
@@ -176,7 +179,7 @@ void pthread_init(const char *interface_name)
         exit(EXIT_FAILURE);
     }
 
-    size = config_file_read(rules, 64);
+    size = config_file_read(rules, MAX_NUM_OF_RUL);
     if (size < 0)
     {
         printL(ERROR, PARSER, "Error reading file/writing data to structure (error code: %d)!", size);

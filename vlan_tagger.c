@@ -1,9 +1,8 @@
 #include "vlan_tagger.h"
-#include "pthread_init.h"
 #include "logger/logger.h"
 
-int num_of_rules = 10; // Что это?
-    static unsigned char buffer[1522] = { 0 };
+
+static unsigned char buffer[1522] = { 0 };
 static unsigned char second_buffer[1522] = { 0 };
 
 short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size)
@@ -14,12 +13,11 @@ short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size
         return -1;
     }
 
-    if (num_of_rules == 0)
+    if (size == 0)
     {
         return -2;
     }
 
-    //addr = ntohl(tag_rules_obj);
     for (int i = 0; i < size; ++i)
     {
 
@@ -82,8 +80,14 @@ uint32_t get_packet_ip(void)
 
     for (int i = 30; i < 34; i++)
     {
-        addr = addr << 8;
-        addr = (addr | buffer[i]);
+        if (i != 33)
+        {
+            addr = (addr | buffer[i]) << 8;
+        }
+        else
+        {
+            addr = (addr | buffer[i]);
+        }
     }
 
     return addr;
@@ -132,7 +136,7 @@ void *tagger(void *thread_data)
         printL(ERROR, TAGGER, "Configuration file not specified (error code: %d)!", -1);
         params->should_exit = 1;
         send_signal_queue(params->sender_queue);
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     if (!params->tag_rules_obj)
@@ -140,7 +144,7 @@ void *tagger(void *thread_data)
         printL(ERROR, TAGGER, "tag_rules_obj is not exist");
         params->should_exit = 1;
         send_signal_queue(params->sender_queue);
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     while (!params->should_exit)
@@ -165,21 +169,21 @@ void *tagger(void *thread_data)
 
         addr = get_packet_ip();
         switch (tag = define_tag_for_ip(addr, (const tag_rules_t *) params->tag_rules_obj, params->tag_rules_size)) {
-            case -3:
-            {
-                continue;
-            }
             case -1: {
                 printL(ERROR, TAGGER, "No list of tagging rules");
                 params->should_exit = 1;
                 send_signal_queue(params->sender_queue);
-                exit(EXIT_FAILURE);
+                pthread_exit(NULL);
             }
             case -2: {
                 printL(ERROR, TAGGER, "The list of tagging rules does not contain any rules");
                 params->should_exit = 1;
                 send_signal_queue(params->sender_queue);
-                exit(EXIT_FAILURE);
+                pthread_exit(NULL);
+            }
+            case -3:
+            {
+                continue;
             }
         }
 

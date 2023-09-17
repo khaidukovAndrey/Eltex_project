@@ -2,7 +2,8 @@
 #define pthread_init_h
 
 #include "vlan_tagger.h"
-#include <signal.h>
+
+#define MAX_NUM_OF_RUL 64
 
 void pthread_init(const char *);
 
