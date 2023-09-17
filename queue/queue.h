@@ -21,11 +21,14 @@ typedef struct Queue
     pthread_cond_t condition; // Переменная состояния
 } Queue_t;
 
-int init(Queue_t *); // Инициализация очереди
+// Инициализация очереди
+int init(Queue_t *);
 
-int is_full(Queue_t *); // Проверка наличия свободных мест в очереди
+// Проверка наличия свободных мест в очереди
+int is_full(Queue_t *);
 
-int is_empty(Queue_t *); // Проверка наличие элементов в очереди
+// Проверка наличие элементов в очереди
+int is_empty(Queue_t *);
 
 // Добавление элемента в очередь в конец
 ssize_t push(
@@ -33,8 +36,8 @@ ssize_t push(
         unsigned char *, // Пакет
         unsigned short); // Размер пакета
 
-
-void remove_front(Queue_t *); // Удаление первого элемента очереди
+// Удаление первого элемента очереди
+void remove_front(Queue_t *);
 
 // Получить первый элемент из очереди и удалить его
 ssize_t pop(
@@ -51,8 +54,8 @@ ssize_t back(
         Queue_t *, // Очередь
         unsigned char *); // Буфер, в который будет занесен пакет
 
-
-int queue_destroy(Queue_t *); // Завершение работы с очередью (уничтожение файлов мьютексов)
+// Завершение работы с очередью (уничтожение файлов мьютексов)
+int queue_destroy(Queue_t *); 
 
 void send_signal_queue(Queue_t *);
 

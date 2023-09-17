@@ -85,7 +85,9 @@ int printL(
     }
 
     char buffer[USR_MSG_SIZE] = { 0 };
-    int returned_val = 0; // Возвращаемое значение - количество записанных символов
+    
+    // Возвращаемое значение - количество записанных символов
+    int returned_val = 0;
 
     // Работа с переменным числом аргументов
     va_list args;
@@ -102,14 +104,16 @@ int printL(
         return -2;
     }
 
-    pthread_mutex_lock(&mutex); // Входим в критический участок
+    // Входим в критический участок
+    pthread_mutex_lock(&mutex);
 
     if (fputs(time_buff, file) == EOF)
     {
         pthread_mutex_unlock(&mutex);
         return -3;
     }
-    returned_val += (int) strlen(time_buff); //Увеличиваем счетчик записанных символов
+    //Увеличиваем счетчик записанных символов
+    returned_val += (int) strlen(time_buff);
 
     // Записываем тип сообщения
     switch (msg_type)
