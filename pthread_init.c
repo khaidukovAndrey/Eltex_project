@@ -45,16 +45,10 @@ void logging_programm_completion(struct thread_data* params)
     stop_log();
 }
 
-void signal_handler(int signal){
+void signal_handler(int signal)
+{
     logging_programm_completion(&func_params);
-    if (signal == SIGINT)
-    {
-        exit(EXIT_SUCCESS);
-    }
-    else if (signal == SIGSEGV)
-    {
-        exit(EXIT_FAILURE);
-    }
+    exit(EXIT_SUCCESS);
 }
 
 
@@ -83,7 +77,6 @@ void pthread_init(const char *interface_name)
         stop_log();
         exit(EXIT_FAILURE);
     }
-
 
 
     if (signal(SIGINT, signal_handler) == SIG_ERR)
