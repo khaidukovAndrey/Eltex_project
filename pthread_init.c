@@ -5,6 +5,8 @@
 #include <errno.h>
 #include <sys/resource.h>
 #include <signal.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 
 #include "stdlib.h"
 #include "queue/queue.h"
@@ -117,13 +119,24 @@ void pthread_init(const char *interface_name)
         exit(EXIT_FAILURE);
     }
 
-    if (setsockopt(
-            sock_r,
-            SOL_SOCKET,
-            SO_BINDTODEVICE,
-            interface_name,
-            strlen(interface_name)) < 0)
-    {
+    // Получаем индекс сетевого интерфейса по его имени
+    struct ifreq ifr;
+    memset(&ifr, 0, sizeof(ifr));
+    strncpy(ifr.ifr_name, interface_name, sizeof(ifr.ifr_name));
+    if (ioctl(sock_r, SIOCGIFINDEX, &ifr) == -1) {
+        printL(ERROR, INITIATOR, "Error with interface id");
+               close(sock_r);
+        exit(EXIT_FAILURE);
+    }
+
+    // Привязываем соксет к конкретному интерфейсу
+    struct sockaddr_ll sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sll_family = AF_PACKET;
+    sa.sll_protocol = htons(ETH_P_ALL);
+    sa.sll_ifindex = ifr.ifr_ifindex;
+
+    if (bind(sock_r, (struct sockaddr *)&sa, sizeof(sa)) == -1) {
         printL(ERROR, INITIATOR, "Error setting up network interface for socket (error code: %d)!", errno);
         close(sock_r);
         exit(EXIT_FAILURE);
@@ -214,6 +227,4 @@ void pthread_init(const char *interface_name)
     }
 
     logging_programm_completion(&func_params);
-
-    stop_log();
 }
