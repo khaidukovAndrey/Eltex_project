@@ -1,7 +1,6 @@
 #include "vlan_tagger.h"
 #include "queue/queue.h"
 #include "logger/logger.h"
-#include "pthread_init.h"
 #include "errno.h"
 
 void *packet_sniffer(void *thread_data)

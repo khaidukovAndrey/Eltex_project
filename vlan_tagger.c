@@ -200,5 +200,6 @@ void *tagger(void *thread_data)
             printL(WARNING, TAGGER, "Queue entry failed");
         }
     }
+
     pthread_exit(NULL);
 }

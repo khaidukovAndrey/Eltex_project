@@ -1,7 +1,6 @@
 #include "vlan_tagger.h"
 #include "logger/logger.h"
 #include "errno.h"
-#include "pthread_init.h"
 
 #include <string.h>
 

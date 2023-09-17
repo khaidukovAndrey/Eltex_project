@@ -1,5 +1,4 @@
 #include "config_parser.h"
-#include <inttypes.h>
 #include <string.h>
 
 #define FILE_DIR "vlan-tagger.cfg"
@@ -274,14 +273,14 @@ int tag_converting(int *tag_int, const char *tag_str)
 
 int ip_comparison(const struct in_addr ip_1, const struct in_addr ip_2)
 {
-    char ip_1_str[16] = {0};
-    char ip_2_str[16] = {0};
+    char ip_1_str[16] = { 0 };
+    char ip_2_str[16] = { 0 };
     char *pip_1_str = ip_1_str;
     char *pip_2_str = ip_2_str;
     char *ip_1_str_tmp;
     char *ip_2_str_tmp;
-	int ip_1_int[4] = {0};
-    int ip_2_int[4] = {0};
+	int ip_1_int[4] = { 0 };
+    int ip_2_int[4] = { 0 };
 
     ip_1_str_tmp = inet_ntoa(ip_1);
     if (ip_1_str_tmp == NULL)

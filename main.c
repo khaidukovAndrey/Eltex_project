@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 2)
     {
-        printf("Usage: %s <name of the network interface> or <-k - for kill existing daemon>\n", argv[0]);
+        printf("Usage: <name of the network interface>\n");
         exit(EXIT_FAILURE);
     }
 
