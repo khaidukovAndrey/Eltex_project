@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    // форк для создания демона
+    // Форк для создания демона
     pid_t pid = fork();
     if (pid < 0)
     {
@@ -19,7 +19,8 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (pid > 0) // Родительский процесс
+    // Родительский процесс
+    if (pid > 0)
     {
         printf("Daemon started with PID: %d\n", pid);
         exit(EXIT_SUCCESS);
