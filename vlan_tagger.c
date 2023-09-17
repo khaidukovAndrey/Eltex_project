@@ -1,13 +1,11 @@
 #include "vlan_tagger.h"
 #include "logger/logger.h"
 
-
 static unsigned char buffer[1522] = { 0 };
 static unsigned char second_buffer[1522] = { 0 };
 
-short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size)
+short define_tag_for_ip(uint32_t addr, const tag_rules_t *tag_rules_obj, int size)
 {
-
     if (tag_rules_obj == NULL)
     {
         return -1;
@@ -22,7 +20,7 @@ short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size
     {
 
         if (ntohl(tag_rules_obj[i].ip_left.s_addr) <= addr &&
-                ntohl(tag_rules_obj[i].ip_right.s_addr) >= addr)
+            ntohl(tag_rules_obj[i].ip_right.s_addr) >= addr)
         {
             return (tag_rules_obj)[i].tag;
         }
@@ -31,14 +29,16 @@ short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size
     return -3;
 }
 
-ssize_t read_packet(struct thread_data* params)
+ssize_t read_packet(struct thread_data *params)
 {
     ssize_t packet_size = 0;
     packet_size = pop(params->sniffer_queue, buffer);
+
     if (packet_size == -1)
     {
         return -1;
     }
+
     if (packet_size < 46)
     {
         printL(WARNING, TAGGER, "The packet is the wrong size. Discarded");
@@ -129,7 +129,7 @@ void *tagger(void *thread_data)
     short tag = 0;
     uint32_t addr = 0;
     ssize_t packet_size = 0;
-    struct thread_data* params = (struct thread_data*) thread_data;
+    struct thread_data *params = (struct thread_data *)thread_data;
 
     if (params->tag_rules_obj == NULL)
     {
@@ -168,14 +168,20 @@ void *tagger(void *thread_data)
         }
 
         addr = get_packet_ip();
-        switch (tag = define_tag_for_ip(addr, (const tag_rules_t *) params->tag_rules_obj, params->tag_rules_size)) {
-            case -1: {
+
+        switch (tag = define_tag_for_ip(addr, 
+                          (const tag_rules_t *)params->tag_rules_obj, 
+                          params->tag_rules_size))
+        {
+            case -1:
+            {
                 printL(ERROR, TAGGER, "No list of tagging rules");
                 params->should_exit = 1;
                 send_signal_queue(params->sender_queue);
                 pthread_exit(NULL);
             }
-            case -2: {
+            case -2:
+            {
                 printL(ERROR, TAGGER, "The list of tagging rules does not contain any rules");
                 params->should_exit = 1;
                 send_signal_queue(params->sender_queue);
@@ -191,7 +197,7 @@ void *tagger(void *thread_data)
 
         if (push(params->sender_queue, second_buffer, packet_size) != packet_size)
         {
-            //printL(WARNING, TAGGER, "Queue entry failed");
+            printL(WARNING, TAGGER, "Queue entry failed");
         }
     }
     pthread_exit(NULL);
