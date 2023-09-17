@@ -30,7 +30,7 @@ short define_tag_for_ip(uint32_t addr,const tag_rules_t *tag_rules_obj, int size
         }
     }
 
-    return -2;
+    return -3;
 }
 
 ssize_t read_packet(struct thread_data* params)
@@ -164,7 +164,7 @@ void *tagger(void *thread_data)
 
         addr = get_packet_ip();
         switch (tag = define_tag_for_ip(addr, (const tag_rules_t *) params->tag_rules_obj, params->tag_rules_size)) {
-            case 0:
+            case -3:
             {
                 continue;
             }
