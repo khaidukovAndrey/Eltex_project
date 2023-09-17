@@ -154,8 +154,7 @@ int config_file_read(tag_rules_t *tag_rules_obj, int size)
     {
         if(i == size)
         {
-            fclose(pfile);
-            return -3;
+            break;
         }
 
         char rule[37];

@@ -169,7 +169,7 @@ void pthread_init(const char *interface_name)
         exit(EXIT_FAILURE);
     }
 
-    res = tag_rules_init(&rules, 64);
+    res = tag_rules_init(&rules, MAX_NUM_OF_RUL);
     if (res != 0)
     {
         printL(ERROR, PARSER, "Error in allocating memory for the configuration file structure (error code: %d)!", res);
@@ -179,7 +179,7 @@ void pthread_init(const char *interface_name)
         exit(EXIT_FAILURE);
     }
 
-    size = config_file_read(rules, 64);
+    size = config_file_read(rules, MAX_NUM_OF_RUL);
     if (size < 0)
     {
         printL(ERROR, PARSER, "Error reading file/writing data to structure (error code: %d)!", size);
